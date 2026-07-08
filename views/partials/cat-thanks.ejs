@@ -1,0 +1,64 @@
+<%
+const isPaymentSuccess = Boolean(paymentSuccess);
+
+const currentPaymentKind =
+  String(paymentKind || "donate") === "feed"
+    ? "feed"
+    : "donate";
+
+const gallery = Array.isArray(cat.mediaGallery) ? cat.mediaGallery : [];
+
+const catThanksMedia = gallery.find(function(media) {
+  return media.type !== "video" && media.thumbUrl;
+});
+
+const catThanksPhoto =
+  cat.photoUrl ||
+  (catThanksMedia ? catThanksMedia.thumbUrl : "");
+%>
+
+<% if (isPaymentSuccess) { %>
+  <section class="cat-thanks" id="cat-thanks">
+    <% if (catThanksPhoto) { %>
+      <div class="cat-thanks__photo">
+        <img
+          src="<%= catThanksPhoto %>"
+          alt="<%= cat.name %>"
+          loading="lazy"
+          decoding="async">
+      </div>
+    <% } %>
+
+    <div class="cat-thanks__content">
+      <p class="cat-thanks__eyebrow">Спасибо!</p>
+
+      <h2 class="cat-thanks__title">
+        <% if (currentPaymentKind === "feed") { %>
+          <%= cat.name %> благодарит вас за вкусняшку
+        <% } else { %>
+          <%= cat.name %> благодарит вас за помощь
+        <% } %>
+      </h2>
+
+      <p class="cat-thanks__text">
+        <% if (currentPaymentKind === "feed") { %>
+          Совсем скоро мы угостим <strong><%= cat.name %></strong> вкусняшкой.
+          После кормления мы пришлем вам небольшое видео в выбранный мессенджер.
+        <% } else { %>
+          Благодаря вашему донату у кошек появляются корм, лечение,
+          обследования и ежедневная забота.
+        <% } %>
+      </p>
+
+      <div class="cat-thanks__actions">
+        <a class="kgv-btn kgv-btn-dark cat-thanks__primary" href="#cat-detail">
+          Продолжить знакомство
+        </a>
+
+        <a class="kgv-btn" href="<%= catsUrl || '/cats' %>">
+          Посмотреть других кошек
+        </a>
+      </div>
+    </div>
+  </section>
+<% } %>

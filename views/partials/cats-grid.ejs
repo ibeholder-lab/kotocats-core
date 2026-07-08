@@ -1,0 +1,20 @@
+<%
+const catsList = typeof cats !== "undefined" ? cats : [];
+const emptyText = typeof emptyMessage !== "undefined"
+  ? emptyMessage
+  : "Сейчас список кошек не загружен. Попробуйте обновить страницу.";
+%>
+
+<% if (catsList.length) { %>
+  <div class="kgorod-cats__grid">
+    <% catsList.forEach(function(cat) { %>
+      <%- include(kotocatsCore.partial("cat-list-card.ejs"), {
+        cat
+      }) %>
+    <% }) %>
+  </div>
+<% } else { %>
+  <p class="kgorod-cats__empty">
+    <%= emptyText %>
+  </p>
+<% } %>

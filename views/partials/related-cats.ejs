@@ -1,0 +1,15 @@
+<section class="cats-widget-section">
+  <section class="kgorod-cats">
+    <div class="kgorod-cats__head">
+      <h2 class="kgorod-cats__title">
+        <%= title || 'Другие кошки' %>
+      </h2>
+    </div>
+
+    <%- include(kotocatsCore.partial("cats-grid.ejs"), {
+      kotocatsCore,
+      cats: relatedCats || [],
+      emptyMessage: ""
+    }) %>
+  </section>
+</section>

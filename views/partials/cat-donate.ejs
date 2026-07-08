@@ -1,0 +1,42 @@
+<%
+const paymentData = typeof paymentQuery !== "undefined" ? paymentQuery : {};
+const paymentSuccess = String(paymentData.payment || "") === "success";
+const catDonateName = cat && cat.name ? cat.name : "кошке";
+%>
+
+<% if (!paymentSuccess) { %>
+  <section
+    class="cat-donate"
+    data-cat-donate
+    data-cat-id="<%= cat.id %>"
+    data-cat-name="<%= cat.name %>"
+    data-success-url="<%= pageUrl %>?payment=success&kind=donate"
+    data-failure-url="<%= pageUrl %>?payment=failed&kind=donate">
+
+    <div class="cat-donate__content">
+      <p class="cat-donate__eyebrow">
+        <%= donateEyebrow || 'Помочь кошке' %>
+      </p>
+
+      <h2 class="cat-donate__title">
+        Поддержать <%= catDonateName %>
+      </h2>
+
+      <p class="cat-donate__text" data-donate-text>
+        <%= donateText || 'Ваш донат помогает оплачивать корм, лекарства, обследования и ежедневный уход.' %>
+      </p>
+
+      <div class="cat-donate__amounts" aria-label="Выберите сумму пожертвования">
+        <button type="button" class="cat-donate__amount" data-amount="50">50 ₽</button>
+        <button type="button" class="cat-donate__amount" data-amount="100">100 ₽</button>
+        <button type="button" class="cat-donate__amount is-active" data-amount="300">300 ₽</button>
+      </div>
+
+      <div class="cat-donate__actions-row">
+        <button type="button" class="cat-donate__button" data-donate-button>
+          Помочь на 300 ₽
+        </button>
+      </div>
+    </div>
+  </section>
+<% } %>

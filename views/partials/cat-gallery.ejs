@@ -1,0 +1,39 @@
+<% if (cat.mediaGallery && cat.mediaGallery.length) { %>
+  <section class="kgorod-cat-media-strip" aria-label="Фото и видео <%= cat.name %>">
+    <% cat.mediaGallery.forEach(function(media, index) { %>
+      <% if (media.type === 'video') { %>
+        <button
+          class="kgorod-cat-media-strip__item kgorod-cat-media-strip__item--video <%= index === 0 ? 'is-cover-source' : '' %>"
+          type="button"
+          data-media-kind="video"
+          data-full-src="<%= media.fullUrl %>"
+          data-poster="<%= media.poster || '' %>"
+          data-gallery-index="<%= index %>"
+          <%= index === 0 ? 'hidden' : '' %>
+          aria-label="Открыть видео <%= cat.name %>">
+          <video muted loop playsinline preload="none" poster="<%= media.poster %>">
+            <source src="<%= media.thumbWebm %>" type="video/webm">
+            <source src="<%= media.thumbMp4 %>" type="video/mp4">
+          </video>
+          <span class="kgorod-cat-media-strip__play" aria-hidden="true">▶</span>
+        </button>
+      <% } else { %>
+        <button
+          class="kgorod-cat-media-strip__item <%= index === 0 ? 'is-cover-source' : '' %>"
+          type="button"
+          data-media-kind="photo"
+          data-full-src="<%= media.fullUrl %>"
+          data-thumb-src="<%= media.thumbUrl %>"
+          data-gallery-index="<%= index %>"
+          <%= index === 0 ? 'hidden' : '' %>
+          aria-label="Открыть фото <%= cat.name %>">
+          <img
+            src="<%= media.thumbUrl %>"
+            alt="<%= cat.name %> — фото <%= index + 1 %>"
+            loading="lazy"
+            decoding="async">
+        </button>
+      <% } %>
+    <% }) %>
+  </section>
+<% } %>
