@@ -6,3 +6,22 @@ logs/
 .DS_Store
 *.zip
 Zone.Identifier
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Tests and generated reports
+playwright-report/
+test-results/
+
+# Windows metadata
+*:Zone.Identifier
+
+# Local backups
+*.backup-*
+.gitignore.backup-before-cleanup

@@ -1,38 +1,64 @@
-<a class="kgorod-cats__card" href="<%= cat.href %>">
+<a
+  class="kgorod-cats__card"
+  href="<%= cat.href %>"
+  data-cat-name="<%= String(cat.name || '').toLowerCase() %>">
   <div class="kgorod-cats__image-wrap">
+
     <% if (cat.photoUrl) { %>
+
       <img
         class="kgorod-cats__image"
         src="<%= cat.photoUrl %>"
         alt="<%= cat.name %>"
         loading="lazy"
         decoding="async">
+
     <% } %>
 
     <span class="kgorod-cats__badge">
-      <%= cat.statusLabel || 'Ищет дом' %>
+      <%= cat.statusLabel || "Ищет дом" %>
     </span>
+
   </div>
 
   <div class="kgorod-cats__body">
+
     <h2 class="kgorod-cats__name">
       <%= cat.name %>
     </h2>
 
+    <% if (cat.categoryLabel) { %>
+
+      <div class="kgv-cat-category">
+        <%= cat.categoryLabel %>
+      </div>
+
+    <% } %>
+
     <% if (cat.facts && cat.facts.length) { %>
+
       <div class="kgorod-cats__facts">
+
         <% cat.facts.forEach(function(fact) { %>
+
           <span class="kgorod-cats__fact">
             <%= fact %>
           </span>
+
         <% }) %>
+
       </div>
+
     <% } %>
 
     <% if (cat.shortDescription) { %>
+
       <p class="kgorod-cats__desc">
         <%= cat.shortDescription %>
       </p>
+
     <% } %>
+
   </div>
+
 </a>

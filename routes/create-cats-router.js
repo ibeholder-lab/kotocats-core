@@ -43,28 +43,139 @@ function createCatsRouter(options = {}) {
   }
 
   router.get("/cats", async (req, res, next) => {
-    try {
-      if (req.query.animal) {
-        return res.redirect(
-          301,
-          "/cats/" + encodeURIComponent(String(req.query.animal)),
-        );
-      }
+  try {
+    if (req.query.animal) {
+      return res.redirect(
+        301,
+        "/cats/" + encodeURIComponent(String(req.query.animal)),
+      );
+    }
 
-      const catsData = await loadCatsForCatalog();
+const categoryFilters = [
+  {
+    value: "all",
+    label: "Все",
+    icon: "",
+    description:
+      "Здесь живые анкеты кошек фонда «Хорошее дело». Можно выбрать кошку, познакомиться с ней, приехать в котокафе или помочь кормом, лечением и заботой.",
+  },
+  {
+    value: "kitten",
+    label: "Котята",
+    icon: "🐱",
+    description:
+      "Котята только начинают знакомиться с большим миром. Они быстро привыкают к новому дому, любят играть, исследовать всё вокруг и с интересом познают жизнь рядом с человеком. Если вы готовы уделять время воспитанию и активным играм, котёнок может стать замечательным другом на долгие годы.",
+  },
+  {
+    value: "young",
+    label: "Молодые кошки",
+    icon: "🌿",
+    description:
+      "Молодые кошки уже выросли, но по-прежнему полны любопытства и энергии. У каждой из них свой характер, привычки и любимые занятия. Многие уже освоили домашние правила и легко привыкают к новой семье, сохраняя игривость и открытость к общению.",
+  },
+  {
+    value: "adult",
+    label: "Взрослые кошки",
+    icon: "🐈",
+    description:
+      "Взрослые кошки — спокойные и сформировавшиеся личности. Их характер уже хорошо известен, поэтому подобрать питомца под свой образ жизни становится проще. Многие из них ценят внимание человека, любят уют и быстро начинают доверять тем, кто относится к ним с заботой.",
+  },
+  {
+    value: "senior",
+    label: "На доживании",
+    icon: "💜",
+    description:
+      "Эти кошки уже немолоды и особенно нуждаются в спокойном доме, где смогут провести зрелые годы рядом с любящими людьми. Им не нужны долгие приключения — гораздо важнее тепло, забота и ощущение, что рядом есть свой человек. Многие пожилые кошки удивительно ласковы, благодарны и становятся самыми преданными домашними друзьями.",
+  },
+  {
+    value: "special",
+    label: "Особенные кошки",
+    icon: "💙",
+    description:
+      "Особенные кошки живут с особенностями здоровья или перенесёнными травмами, но это не мешает им радоваться жизни, играть, общаться с людьми и быть счастливыми дома. Многие из них не требуют сложного ухода — лишь немного больше внимания, любви и понимания. Зато они часто отвечают человеку удивительным доверием и привязанностью.",
+  },
+];
+    const allowedCategories = new Set(
+      categoryFilters.map((item) => item.value),
+    );
+
+    const requestedCategory = String(
+      req.query.category || "all",
+    )
+      .trim()
+      .toLowerCase();
+
+    const activeCategory = allowedCategories.has(requestedCategory)
+      ? requestedCategory
+      : "all";
+
+      const activeCategoryData =
+  categoryFilters.find(
+    (item) => item.value === activeCategory,
+  ) || categoryFilters[0];
+
+    const catsData = await loadCatsForCatalog();
+
+    const allCats = Array.isArray(catsData.cats)
+      ? catsData.cats
+      : [];
+
+    const categoryCounts = allCats.reduce(
+      (counts, cat) => {
+        counts.all += 1;
+
+        const category = String(cat.category || "")
+          .trim()
+          .toLowerCase();
+
+        if (
+          Object.prototype.hasOwnProperty.call(
+            counts,
+            category,
+          )
+        ) {
+          counts[category] += 1;
+        }
+
+        return counts;
+      },
+      {
+        all: 0,
+        kitten: 0,
+        young: 0,
+        adult: 0,
+        senior: 0,
+        special: 0,
+      },
+    );
+
+    const filteredCats =
+      activeCategory === "all"
+        ? allCats
+        : allCats.filter((cat) => {
+            return (
+              String(cat.category || "")
+                .trim()
+                .toLowerCase() === activeCategory
+            );
+          });
 
 res.render("cats", {
   kotocatsCore,
-  cats: catsData.cats,
+  cats: filteredCats,
   catsError: catsData.error,
   selectedCat: null,
   selectedCatMissing: false,
+  activeCategory,
+  activeCategoryData,
+  categoryFilters,
+  categoryCounts,
   styles: ["cats"],
 });
-    } catch (err) {
-      next(err);
-    }
-  });
+  } catch (err) {
+    next(err);
+  }
+});
 
   router.get("/cats/:slug", async (req, res, next) => {
     try {
@@ -75,7 +186,10 @@ res.render("cats", {
           pageTitle: "Кошка не найдена",
           pageDescription:
             "Запрошенная анкета кошки не найдена или больше не опубликована.",
-          pageUrl: siteUrl + "/cats/" + encodeURIComponent(req.params.slug),
+          pageUrl:
+            siteUrl +
+            "/cats/" +
+            encodeURIComponent(req.params.slug),
           ogImage: defaultOgImage,
         });
       }
@@ -83,23 +197,25 @@ res.render("cats", {
       const catsData = await loadCatsForWidget(6);
 
       const relatedCats = catsData.cats
-        .filter((item) => String(item.id) !== String(cat.id))
+        .filter(
+          (item) => String(item.id) !== String(cat.id),
+        )
         .slice(0, 4);
 
-res.render("cat", {
-  kotocatsCore,
-  cat,
-  relatedCats,
-  catsError: catsData.error,
-  query: req.query || {},
-  paymentQuery: req.query || {},
-  styles: [
-      "home-fixes",
-    "gallery",
-    "cat-detail",
-    "cat-donate",
-  ],
-});
+      res.render("cat", {
+        kotocatsCore,
+        cat,
+        relatedCats,
+        catsError: catsData.error,
+        query: req.query || {},
+        paymentQuery: req.query || {},
+        styles: [
+          "home-fixes",
+          "gallery",
+          "cat-detail",
+          "cat-donate",
+        ],
+      });
     } catch (err) {
       next(err);
     }

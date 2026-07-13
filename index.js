@@ -4,6 +4,11 @@ const createCatsRouter = require("./routes/create-cats-router");
 const createDirectusClient = require("./lib/directus-client");
 const directusCats = require("./lib/directus-cats");
 
+const {
+  handleMixplatWebhook,
+  initMixplatDonations,
+} = require("./lib/payments/mixplat");
+
 const coreRoot = __dirname;
 
 const donationsRouter = require("./routes/donations");
@@ -25,6 +30,8 @@ module.exports = {
 
   createCatsRouter,
   createDirectusClient,
+  handleMixplatWebhook,
+  initMixplatDonations,
 
   ...directusCats,
 
