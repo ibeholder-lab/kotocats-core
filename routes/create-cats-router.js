@@ -18,6 +18,15 @@ const kotocatsCore = {
   },
 };
 
+function shuffle(items) {
+  const shuffled = Array.isArray(items) ? [...items] : [];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
 function createCatsRouter(options = {}) {
   const router = express.Router();
 
@@ -162,7 +171,7 @@ const categoryFilters = [
 
 res.render("cats", {
   kotocatsCore,
-  cats: filteredCats,
+  cats: shuffle(filteredCats),
   catsError: catsData.error,
   selectedCat: null,
   selectedCatMissing: false,

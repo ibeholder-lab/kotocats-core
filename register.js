@@ -37,10 +37,14 @@ function registerKotocats(app, options = {}) {
   });
 
   app.use(router);
+  app.use("/api/kotprosvet", core.createKotprosvetRouter());
+  app.use("/api", core.createDoodlesRouter());
+  app.use("/api", core.createHeroImagesRouter());
 
 
 if (options.enableDonations !== false) {
   app.use("/api/donations", core.donationsRouter);
+  app.use("/api/feed", core.createFeedRouter());
 
   app.post("/mixplat/webhook", async (req, res) => {
     const urlObject = new URL(req.originalUrl, "http://localhost");

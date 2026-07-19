@@ -4,7 +4,14 @@ document.querySelectorAll("[data-cat-donate]").forEach(function(root) {
 
   if (!donateButton) return;
 
-  let currentAmount = 300;
+  const activeAmount = root.querySelector("[data-amount].is-active");
+  let currentAmount = Number(activeAmount?.dataset.amount) || 300;
+  const kind = root.dataset.donationKind || "donate";
+  const buttonText = function() {
+    return kind === "guardianship"
+      ? "Оформить опеку от " + currentAmount + " ₽"
+      : "Помочь на " + currentAmount + " ₽";
+  };
 
   amountButtons.forEach(function(button) {
     button.addEventListener("click", function() {
@@ -15,7 +22,7 @@ document.querySelectorAll("[data-cat-donate]").forEach(function(root) {
       });
 
       button.classList.add("is-active");
-      donateButton.textContent = "Помочь на " + currentAmount + " ₽";
+      donateButton.textContent = buttonText();
     });
   });
 
@@ -36,6 +43,9 @@ document.querySelectorAll("[data-cat-donate]").forEach(function(root) {
           animal_name: root.dataset.catName,
           amount: currentAmount,
           payment_type: "donate",
+          need_id: root.dataset.needId || undefined,
+          need_title: root.dataset.needTitle || undefined,
+          source: kind === "guardianship" ? "koshkivgorode-site-guardianship" : "koshkivgorode-site",
           comment: "Донат кошке " + root.dataset.catName,
           success_url: root.dataset.successUrl,
           failure_url: root.dataset.failureUrl

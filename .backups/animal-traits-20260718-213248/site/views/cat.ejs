@@ -1,0 +1,426 @@
+<%
+const siteUrl =
+  typeof SITE_URL !== "undefined"
+    ? SITE_URL
+    : (
+        process.env.SITE_URL ||
+        "https://koshkivgorode.ru"
+      );
+
+const relatedCatsList =
+  typeof relatedCats !== "undefined"
+    ? relatedCats
+    : [];
+
+const catSlugOrId =
+  cat.slug || cat.id;
+
+const pageUrl =
+  siteUrl +
+  "/cats/" +
+  encodeURIComponent(catSlugOrId);
+
+const pageTitle =
+  `${cat.name} ищет дом — Котики и Люди`;
+
+const pageDescription = (
+  cat.description ||
+  cat.shortDescription ||
+  `Познакомьтесь с кошкой ${cat.name}.`
+)
+  .replace(/\s+/g, " ")
+  .slice(0, 180);
+
+const preloadImage =
+  cat.photoUrl || "";
+
+const ogImage =
+  cat.photoUrl
+    ? (
+        cat.photoUrl.startsWith("http")
+          ? cat.photoUrl
+          : siteUrl + cat.photoUrl
+      )
+    : siteUrl + "/images/logo.webp";
+
+const breadcrumbs = [
+  {
+    name: "Главная",
+    url: "/"
+  },
+  {
+    name: "Кошки",
+    url: "/cats"
+  },
+  {
+    name: cat.name
+  }
+];
+
+const catFacts =
+  cat.facts && cat.facts.length
+    ? cat.facts.join(", ")
+    : "";
+
+const organizationSchema = {
+  "@type": "Organization",
+  "@id": siteUrl + "/#organization",
+  "name":
+    "Благотворительный фонд помощи животным и людям «Хорошее дело»",
+  "url": siteUrl,
+  "logo":
+    siteUrl + "/images/logo.webp"
+};
+
+const schema = {
+  "@context": "https://schema.org",
+
+  "@graph": [
+    organizationSchema,
+
+    {
+      "@type": "WebSite",
+      "@id": siteUrl + "/#website",
+      "name": "Котики и Люди",
+      "url": siteUrl,
+
+      "publisher": {
+        "@id": siteUrl + "/#organization"
+      },
+
+      "inLanguage": "ru-RU"
+    },
+
+    {
+      "@type": "ItemPage",
+      "@id": pageUrl + "#webpage",
+      "name": pageTitle,
+      "description": pageDescription,
+      "url": pageUrl,
+      "image": ogImage,
+      "inLanguage": "ru-RU",
+
+      "isPartOf": {
+        "@id": siteUrl + "/#website"
+      },
+
+      "publisher": {
+        "@id": siteUrl + "/#organization"
+      },
+
+      "about": {
+        "@id": siteUrl + "/#organization"
+      },
+
+      "primaryImageOfPage": {
+        "@type": "ImageObject",
+        "url": ogImage
+      },
+
+      "dateModified":
+        cat.dateModified ||
+        cat.updatedAt ||
+        cat.updated_at ||
+        cat.datePublished ||
+        "2026-06-30",
+
+      "mainEntity": {
+        "@type": "Animal",
+        "@id": pageUrl + "#cat",
+        "name": cat.name,
+        "description": pageDescription,
+        "image": ogImage,
+        "identifier": String(cat.id || ""),
+        "url": pageUrl
+      }
+    }
+  ]
+};
+
+if (catFacts) {
+  schema["@graph"][2]
+    .mainEntity
+    .disambiguatingDescription = catFacts;
+}
+
+const mainMediaGallery =
+  Array.isArray(cat.mediaGallery)
+    ? cat.mediaGallery
+    : [];
+
+const streetMediaGallery =
+  Array.isArray(cat.streetMediaGallery)
+    ? cat.streetMediaGallery
+    : [];
+%>
+
+<!doctype html>
+
+<html lang="ru">
+
+<head>
+
+  <%- include("partials/seo-head", {
+    pageTitle,
+    pageDescription,
+    pageUrl,
+    ogImage,
+    preloadImage,
+    schema,
+    styles
+  }) %>
+
+  <%- include("partials/breadcrumb-schema", {
+    breadcrumbs
+  }) %>
+
+</head>
+
+<body>
+
+<%- include("partials/header") %>
+
+<main class="kgv-main cats-page">
+
+  <section
+    class="cats-hero kgv-page-heroish kgorod-cat-breadcrumbs-hero">
+
+    <div class="container">
+
+      <%- include("partials/breadcrumbs", {
+        breadcrumbs
+      }) %>
+
+    </div>
+
+  </section>
+
+  <section class="kgorod-cat-detail-hero">
+
+    <div class="container">
+
+      <%- include(
+        kotocatsCore.partial("cat-card.ejs"),
+        {
+          cat,
+          catsUrl: "/cats",
+
+          adoptUrl:
+            "/adopt/" +
+            encodeURIComponent(cat.slug || cat.id),
+
+          adoptText:
+            "🏠 Забрать домой",
+
+          helpUrl:
+            "/help",
+
+          helpText:
+            "Помочь кошкам",
+
+          meetUrl:
+            "/kotocafe",
+
+          meetText:
+            "Приехать знакомиться"
+        }
+      ) %>
+
+      <%- include(
+        kotocatsCore.partial("cat-gallery.ejs"),
+        {
+          cat,
+          mediaGallery: mainMediaGallery,
+          galleryId: "main",
+          galleryLabel:
+            `Фото и видео ${cat.name}`,
+          hideFirst: true
+        }
+      ) %>
+
+      <% if (streetMediaGallery.length) { %>
+
+        <section class="kgorod-cat-street-history">
+
+          <button
+            class="kgorod-cat-street-history__toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="cat-street-gallery">
+
+            <span
+              class="kgorod-cat-street-history__eyebrow">
+              История спасения
+            </span>
+
+            <% if (cat.categoryLabel) { %>
+
+              <div class="kgv-cat-category kgv-cat-category--detail">
+                <%= cat.categoryLabel %>
+              </div>
+
+            <% } %>
+
+            <strong
+              class="kgorod-cat-street-history__title">
+              Хотите посмотреть, каким был путь
+              <%= cat.name %>
+              до котокафе?
+            </strong>
+
+            <span
+              class="kgorod-cat-street-history__text">
+              Здесь сохранились фотографии
+              и видео с улицы.
+            </span>
+
+            <span
+              class="kgorod-cat-street-history__action">
+              Показать фотографии с улицы
+            </span>
+
+          </button>
+
+          <div
+            class="kgorod-cat-street-history__content"
+            id="cat-street-gallery"
+            hidden>
+
+            <%- include(
+              kotocatsCore.partial("cat-gallery.ejs"),
+              {
+                cat,
+                mediaGallery: streetMediaGallery,
+                galleryId: "street",
+                galleryLabel:
+                  `Фото и видео ${cat.name} с улицы`,
+                hideFirst: false
+              }
+            ) %>
+
+          </div>
+
+        </section>
+
+      <% } %>
+
+      <%- include(
+        kotocatsCore.partial("cat-thanks.ejs"),
+        {
+          cat,
+
+          paymentSuccess:
+            String(
+              (paymentQuery || {}).payment || ""
+            ) === "success",
+
+          paymentKind:
+            String(
+              (paymentQuery || {}).kind || "donate"
+            ) === "feed"
+              ? "feed"
+              : "donate",
+
+          catsUrl: "/cats"
+        }
+      ) %>
+
+      <%- include(
+        kotocatsCore.partial("cat-donate.ejs"),
+        {
+          cat,
+          paymentQuery,
+          pageUrl,
+
+          donateEyebrow:
+            "Помочь кошке",
+
+          donateText:
+            "Ваш донат помогает оплачивать корм, лекарства, обследования и ежедневный уход."
+        }
+      ) %>
+
+    </div>
+
+  </section>
+
+  <%- include(
+    kotocatsCore.partial("related-cats.ejs"),
+    {
+      kotocatsCore,
+      relatedCats: relatedCatsList,
+      title: "Другие кошки"
+    }
+  ) %>
+
+</main>
+
+<section class="container" id="animal-reviews" data-animal-id="<%= cat.id %>">
+  <h2>Отзывы о <%= cat.name %></h2>
+  <div class="reviews-list">Загружаем отзывы…</div>
+  <form class="review-form">
+    <input name="reviewer_name" placeholder="Ваше имя">
+    <textarea name="review_text" required minlength="3" placeholder="Ваш отзыв"></textarea>
+    <input name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px">
+    <button>Отправить отзыв</button><p class="review-status"></p>
+  </form>
+</section>
+<script>
+(() => { const box=document.querySelector('#animal-reviews'), id=box?.dataset.animalId; if(!id)return; const list=box.querySelector('.reviews-list'), form=box.querySelector('form'), status=box.querySelector('.review-status'); const esc=s=>String(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); async function load(){const r=await fetch('/api/animal-reviews?animal='+encodeURIComponent(id));const d=await r.json();list.innerHTML=d.reviews?.length?d.reviews.map(x=>`<article><b>${esc(x.reviewer_name||'Гость')}</b><p>${esc(x.review_text)}</p></article>`).join(''):'Отзывов пока нет — ваш может стать первым.'} form.addEventListener('submit',async e=>{e.preventDefault();status.textContent='Отправляем…';const d=Object.fromEntries(new FormData(form));d.animal_id=id;const r=await fetch('/api/animal-review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});const out=await r.json();status.textContent=out.message||out.error||(r.ok?'Спасибо!':'Ошибка');if(r.ok)form.reset()});load().catch(()=>list.textContent='Не удалось загрузить отзывы.'); })();
+</script>
+
+<%- include("partials/footer") %>
+
+<script
+  src="/js/cat-media-gallery.js?v=4"
+  defer>
+</script>
+
+<script
+  src="/kotocats-core/js/cat-donate.js"
+  defer>
+</script>
+
+<script>
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    if (
+      params.get("payment") !== "success"
+    ) {
+      return;
+    }
+
+    const thanks =
+      document.getElementById(
+        "cat-thanks"
+      );
+
+    if (!thanks) {
+      return;
+    }
+
+    requestAnimationFrame(
+      function () {
+
+        thanks.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+
+      }
+    );
+
+  }
+);
+</script>
+
+</body>
+
+</html>

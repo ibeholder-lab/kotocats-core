@@ -1,0 +1,159 @@
+[
+  
+  {
+    "slug": "kotocafe",
+    "name": "Котокафе «Котики и Люди»",
+    "logo": "/images/partners/kotocafe.webp",
+    "type": "project",
+    "showOnPartnersPage": false,
+    "showMini": false,
+    "description": "Котокафе и пространство помощи кошкам",
+    "url": "https://kotocafe.ru"
+  },
+  {
+    "slug": "iskusstvo-byt-ryadom",
+    "name": "Фонд «Искусство быть рядом»",
+    "logo": "/images/partners/iskusstvo-byt-ryadom.webp",
+    "type": "project",
+    "showOnPartnersPage": false,
+    "showMini": false,
+    "description": "Фонд поддержки людей с аутизмом",
+    "url": "https://arttobeclose.ru"
+  }
+,
+  {
+    "slug": "brit",
+    "name": "Brit Care",
+    "logo": "/images/partners/brit.webp",
+    "type": "general",
+    "featured": true,
+    "showOnPartnersPage": true,
+    "showMini": true,
+    "priority": 1,
+    "description": "Корма суперпремиум-класса",
+    "url": "https://xn----9sbv5acgek.xn--p1ai/brit-care"
+  },
+
+{
+
+    "slug": "cbd",
+
+    "name": "CBD",
+
+    "logo": "/images/partners/cbd.webp",
+
+    "type": "partner",
+
+    "featured": false,   "showOnPartnersPage": true,
+
+  
+
+    "showMini": true,
+
+    "priority": 6,
+
+    "description": "Натуральная поддержка здоровья вашего питомца",
+
+    "url": "https://thecbd.ru/pets/"
+
+  },
+
+
+  {
+    "slug": "feliway",
+    "name": "Feliway",
+    "logo": "/images/partners/feliway.webp",
+    "type": "partner",
+    "featured": false,
+      "showOnPartnersPage": true,
+  
+    "showMini": true,
+    "priority": 2,
+    "description": "Средства для спокойствия кошек",
+    "url": "https://www.feliway.com/"
+  },
+  {
+    "slug": "veda",
+    "name": "Veda",
+    "logo": "/images/partners/veda.webp",
+    "type": "partner",
+    "featured": false,  "showOnPartnersPage": true,
+  
+    "showMini": true,
+    "priority": 3,
+    "description": "Натуральные ветеринарные препараты",
+    "url": "https://veda.ru/"
+  },
+  {
+    "slug": "helvet",
+    "name": "Хелвет",
+    "logo": "/images/partners/helvet.webp",
+    "type": "partner",
+    "featured": false,   "showOnPartnersPage": true,
+  
+    "showMini": true,
+    "priority": 4,
+    "description": "Партнёр ветеринарных программ",
+    "url": "https://helvet.ru/"
+  },
+  {
+    "slug": "koshka-vetra",
+    "name": "Кошка Ветра",
+    "logo": "/images/partners/koshka-vetra.webp",
+    "type": "friend",
+    "featured": false,   "showOnPartnersPage": true,
+  
+    "showMini": true,
+    "priority": 5,
+    "description": "Фонд помощи животным",
+    "url": "https://fondkochkavetra.ru/"
+  },
+  {
+    "slug": "respublika-koshek",
+    "name": "Республика кошек",
+    "logo": "/images/partners/respublika-koshek.webp",
+    "type": "friend",
+    "featured": false,   "showOnPartnersPage": true,
+  
+    "showMini": true,
+    "priority": 6,
+    "description": "Просветительский проект",
+    "url": "https://www.catsrepublic.ru/"
+  },
+  {
+    "slug": "daryashchie-nadezhdu",
+    "name": "Дарящие надежду",
+    "logo": "/images/partners/daryashchie-nadezhdu.webp",
+    "type": "friend",
+    "featured": false,   "showOnPartnersPage": true,
+  
+    "showMini": true,
+    "priority": 7,
+    "description": "Благотворительный фонд",
+    "url": "https://ghope.ru/"
+  },
+  {
+    "slug": "galvet",
+    "name": "Галвет",
+    "logo": "/images/partners/galvet.webp",
+    "type": "friend",
+    "featured": false,   "showOnPartnersPage": true,
+  
+    "showMini": true,
+    "priority": 8,
+    "description": "Друзья фонда",
+    "url": "#"
+  },
+  {
+    "slug": "finolog",
+    "name": "Финолог",
+    "logo": "/images/partners/finolog.webp",
+    "type": "friend",
+    "featured": false,   "showOnPartnersPage": true,
+  
+    "showMini": true,
+    "priority": 9,
+    "description": "Сервис для владельцев животных",
+    "url": "https://finolog.ru/"
+  }
+]

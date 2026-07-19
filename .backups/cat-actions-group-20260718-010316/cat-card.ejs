@@ -1,0 +1,156 @@
+<%
+const catMediaGallery = Array.isArray(cat.mediaGallery)
+  ? cat.mediaGallery
+  : [];
+
+const hasMultipleCatMedia =
+  catMediaGallery.length > 1;
+
+const currentAdoptUrl =
+  typeof adoptUrl === "string" && adoptUrl
+    ? adoptUrl
+    : "/adopt";
+
+const currentAdoptText =
+  typeof adoptText === "string" && adoptText
+    ? adoptText
+    : "🏠 Забрать домой";
+
+const currentHelpUrl =
+  typeof helpUrl === "string" && helpUrl
+    ? helpUrl
+    : "/help";
+
+const currentHelpText =
+  typeof helpText === "string" && helpText
+    ? helpText
+    : "Помочь кошкам";
+
+const currentMeetUrl =
+  typeof meetUrl === "string" && meetUrl
+    ? meetUrl
+    : "/kotocafe";
+
+const currentMeetText =
+  typeof meetText === "string" && meetText
+    ? meetText
+    : "Приехать знакомиться";
+
+const currentFeedUrl = typeof feedUrl === "string" ? feedUrl : "";
+%>
+
+<div class="kgorod-cat-detail" id="cat-detail">
+
+  <div class="kgorod-cat-detail__media kgv-cover-media">
+
+    <% if (hasMultipleCatMedia) { %>
+
+      <button
+        class="kgv-cover-media-prev kgorod-cat-media-arrow kgorod-cat-media-arrow--prev"
+        type="button"
+        aria-label="Предыдущее фото или видео">
+
+        ‹
+
+      </button>
+
+    <% } %>
+
+    <% if (cat.photoUrl) { %>
+
+      <img
+        src="<%= cat.photoUrl %>"
+        alt="<%= cat.name %>"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async">
+
+    <% } %>
+
+    <% if (hasMultipleCatMedia) { %>
+
+      <button
+        class="kgv-cover-media-next kgorod-cat-media-arrow kgorod-cat-media-arrow--next"
+        type="button"
+        aria-label="Следующее фото или видео">
+
+        ›
+
+      </button>
+
+    <% } %>
+
+  </div>
+
+
+  <div class="kgorod-cat-detail__body">
+
+    <a
+      class="kgorod-cat-detail__back"
+      href="<%= catsUrl || '/cats' %>">
+
+      ← Все кошки
+
+    </a>
+
+
+    <p class="kgorod-cat-detail__status">
+
+      <%= cat.statusLabel || "Ищет дом" %>
+
+    </p>
+
+
+    <h1 class="kgorod-cat-detail__name">
+
+      <%= cat.name %>
+
+    </h1>
+
+
+    <% if (cat.facts && cat.facts.length) { %>
+
+      <div class="kgorod-cat-detail__facts">
+
+        <% cat.facts.forEach(function (fact) { %>
+
+          <span class="kgorod-cats__fact">
+
+            <%= fact %>
+
+          </span>
+
+        <% }) %>
+
+      </div>
+
+    <% } %>
+
+
+    <% if (cat.description) { %>
+
+      <p class="kgorod-cat-detail__desc">
+
+        <%= cat.description %>
+
+      </p>
+
+    <% } %>
+
+
+    <nav class="cat-actions" aria-label="Действия для <%= cat.name %>">
+      <a class="cat-action-card cat-action-card--adopt" href="<%= currentAdoptUrl %>">
+        <span class="cat-action-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-6h6v6"/></svg></span><span class="cat-action-card__copy"><span class="cat-action-card__title">Забрать домой</span><span class="cat-action-card__description">Оформить заявку</span></span><span class="cat-action-card__arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a class="cat-action-card cat-action-card--visit" href="<%= currentMeetUrl %>">
+        <span class="cat-action-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h5"/></svg></span><span class="cat-action-card__copy"><span class="cat-action-card__title">Познакомиться</span><span class="cat-action-card__description">Записаться на визит</span></span><span class="cat-action-card__arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <% if (currentFeedUrl) { %><a class="cat-action-card cat-action-card--feed" href="<%= currentFeedUrl %>"><span class="cat-action-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 14c3-5 8-7 14-5-2 1-3 3-3 5 0 2 1 4 3 5-6 2-11 0-14-5Z"/><path d="m18 9 3-3M18 19l3-3M8 14h.01"/></svg></span><span class="cat-action-card__copy"><span class="cat-action-card__title">Покормить</span><span class="cat-action-card__description">Угостить и получить видео</span></span><span class="cat-action-card__arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a><% } %>
+      <a class="cat-action-card cat-action-card--support" href="<%= currentHelpUrl %>">
+        <span class="cat-action-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.8 4.8a5.5 5.5 0 0 0-7.8 0L12 5.9l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.4a5.5 5.5 0 0 0-.1-7.8Z"/></svg></span><span class="cat-action-card__copy"><span class="cat-action-card__title">Поддержать</span><span class="cat-action-card__description">Любая помощь важна</span></span><span class="cat-action-card__arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+    </nav>
+
+  </div>
+
+</div>

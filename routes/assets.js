@@ -21,7 +21,7 @@ async function fileBelongsToPublicAnimal(client, fileId) {
   if (directPhoto.data?.data?.length) return true;
 
   const media = await client.get("/items/animal_media", {
-    params: { filter: { file_id: { _eq: fileId } }, fields: "animal_id", limit: 100 },
+    params: { filter: { _or: [{ file_id: { _eq: fileId } }, { poster_file: { _eq: fileId } }] }, fields: "animal_id", limit: 100 },
   });
   const animalIds = [...new Set((media.data?.data || []).map((row) => String(row.animal_id?.id || row.animal_id || "")).filter(Boolean))];
   if (!animalIds.length) return false;

@@ -1,0 +1,61 @@
+(function () {
+  "use strict";
+
+  if (!window.GLightbox || !window.Plyr) return;
+
+  function stopVideos(reset) {
+    document.querySelectorAll(".glightbox-container video").forEach(function (video) {
+      video.pause();
+      if (reset && video.readyState > 0) {
+        try { video.currentTime = 0; } catch (error) {}
+      }
+    });
+  }
+
+  function configureVideo(event) {
+    var video = event && event.slide ? event.slide.querySelector("video") : null;
+    var poster = event && event.slideConfig ? event.slideConfig.poster : "";
+    if (!video) return;
+    video.controls = true;
+    video.playsInline = true;
+    video.preload = "metadata";
+    if (poster) video.poster = poster;
+  }
+
+  var lightbox = GLightbox({
+    selector: false,
+    loop: false,
+    touchNavigation: true,
+    keyboardNavigation: true,
+    closeOnOutsideClick: true,
+    autoplayVideos: false,
+    plyr: {
+      css: "/kotocats-core/vendor/plyr/plyr.css?v=3.7.8",
+      js: "/kotocats-core/vendor/plyr/plyr.min.js?v=3.7.8",
+      config: { autoplay: false }
+    }
+  });
+
+  lightbox.on("slide_before_change", function () { stopVideos(false); });
+  lightbox.on("slide_after_load", configureVideo);
+  lightbox.on("close", function () { stopVideos(true); });
+
+  window.catGalleryLightbox = lightbox;
+  window.KotoCatsMediaLightbox = {
+    open: function (items, index) {
+      var elements = items.map(function (item) {
+        return {
+          href: item.src,
+          type: item.type === "video" ? "video" : "image",
+          videoProvider: item.type === "video" ? "local" : "",
+          poster: item.poster || "",
+          alt: item.img ? item.img.alt : ""
+        };
+      });
+      stopVideos(true);
+      lightbox.setElements(elements);
+      lightbox.openAt(index);
+    },
+    destroy: function () { lightbox.destroy(); }
+  };
+})();

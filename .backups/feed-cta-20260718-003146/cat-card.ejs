@@ -1,0 +1,172 @@
+<%
+const catMediaGallery = Array.isArray(cat.mediaGallery)
+  ? cat.mediaGallery
+  : [];
+
+const hasMultipleCatMedia =
+  catMediaGallery.length > 1;
+
+const currentAdoptUrl =
+  typeof adoptUrl === "string" && adoptUrl
+    ? adoptUrl
+    : "/adopt";
+
+const currentAdoptText =
+  typeof adoptText === "string" && adoptText
+    ? adoptText
+    : "🏠 Забрать домой";
+
+const currentHelpUrl =
+  typeof helpUrl === "string" && helpUrl
+    ? helpUrl
+    : "/help";
+
+const currentHelpText =
+  typeof helpText === "string" && helpText
+    ? helpText
+    : "Помочь кошкам";
+
+const currentMeetUrl =
+  typeof meetUrl === "string" && meetUrl
+    ? meetUrl
+    : "/kotocafe";
+
+const currentMeetText =
+  typeof meetText === "string" && meetText
+    ? meetText
+    : "Приехать знакомиться";
+%>
+
+<div class="kgorod-cat-detail" id="cat-detail">
+
+  <div class="kgorod-cat-detail__media kgv-cover-media">
+
+    <% if (hasMultipleCatMedia) { %>
+
+      <button
+        class="kgv-cover-media-prev kgorod-cat-media-arrow kgorod-cat-media-arrow--prev"
+        type="button"
+        aria-label="Предыдущее фото или видео">
+
+        ‹
+
+      </button>
+
+    <% } %>
+
+    <% if (cat.photoUrl) { %>
+
+      <img
+        src="<%= cat.photoUrl %>"
+        alt="<%= cat.name %>"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async">
+
+    <% } %>
+
+    <% if (hasMultipleCatMedia) { %>
+
+      <button
+        class="kgv-cover-media-next kgorod-cat-media-arrow kgorod-cat-media-arrow--next"
+        type="button"
+        aria-label="Следующее фото или видео">
+
+        ›
+
+      </button>
+
+    <% } %>
+
+  </div>
+
+
+  <div class="kgorod-cat-detail__body">
+
+    <a
+      class="kgorod-cat-detail__back"
+      href="<%= catsUrl || '/cats' %>">
+
+      ← Все кошки
+
+    </a>
+
+
+    <p class="kgorod-cat-detail__status">
+
+      <%= cat.statusLabel || "Ищет дом" %>
+
+    </p>
+
+
+    <h1 class="kgorod-cat-detail__name">
+
+      <%= cat.name %>
+
+    </h1>
+
+
+    <% if (cat.facts && cat.facts.length) { %>
+
+      <div class="kgorod-cat-detail__facts">
+
+        <% cat.facts.forEach(function (fact) { %>
+
+          <span class="kgorod-cats__fact">
+
+            <%= fact %>
+
+          </span>
+
+        <% }) %>
+
+      </div>
+
+    <% } %>
+
+
+    <% if (cat.description) { %>
+
+      <p class="kgorod-cat-detail__desc">
+
+        <%= cat.description %>
+
+      </p>
+
+    <% } %>
+
+
+    <div class="kgorod-cat-detail__actions">
+
+      <a
+        class="kgv-btn kgv-btn-dark"
+        href="<%= currentAdoptUrl %>"
+        aria-label="Забрать <%= cat.name %> домой">
+
+        <%= currentAdoptText %>
+
+      </a>
+
+
+      <a
+        class="kgv-btn"
+        href="<%= currentHelpUrl %>">
+
+        <%= currentHelpText %>
+
+      </a>
+
+
+      <a
+        class="kgv-btn"
+        href="<%= currentMeetUrl %>">
+
+        <%= currentMeetText %>
+
+      </a>
+
+    </div>
+
+  </div>
+
+</div>

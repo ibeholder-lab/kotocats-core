@@ -35,6 +35,8 @@ const currentMeetText =
   typeof meetText === "string" && meetText
     ? meetText
     : "Приехать знакомиться";
+
+const currentFeedUrl = typeof feedUrl === "string" ? feedUrl : "";
 %>
 
 <div class="kgorod-cat-detail" id="cat-detail">
@@ -136,36 +138,16 @@ const currentMeetText =
     <% } %>
 
 
-    <div class="kgorod-cat-detail__actions">
-
-      <a
-        class="kgv-btn kgv-btn-dark"
-        href="<%= currentAdoptUrl %>"
-        aria-label="Забрать <%= cat.name %> домой">
-
-        <%= currentAdoptText %>
-
-      </a>
-
-
-      <a
-        class="kgv-btn"
-        href="<%= currentHelpUrl %>">
-
-        <%= currentHelpText %>
-
-      </a>
-
-
-      <a
-        class="kgv-btn"
-        href="<%= currentMeetUrl %>">
-
-        <%= currentMeetText %>
-
-      </a>
-
-    </div>
+    <nav class="cat-actions" aria-label="Действия для <%= cat.name %>">
+      <div class="cat-actions__primary">
+        <a class="cat-action-button cat-action-button--adopt" href="<%= currentAdoptUrl %>"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-6h6v6"/></svg><span>Забрать домой</span></a>
+        <a class="cat-action-button cat-action-button--visit" href="<%= currentMeetUrl %>"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg><span>Познакомиться</span></a>
+      </div>
+      <div class="cat-actions__secondary">
+        <% if (currentFeedUrl) { %><a class="cat-action-button cat-action-button--feed" href="<%= currentFeedUrl %>"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 14c3-5 8-7 14-5-2 1-3 3-3 5 0 2 1 4 3 5-6 2-11 0-14-5Z"/><path d="m18 9 3-3M18 19l3-3"/></svg><span>Покормить</span></a><% } %>
+        <a class="cat-action-button cat-action-button--support" href="<%= currentHelpUrl %>"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20.8 4.8a5.5 5.5 0 0 0-7.8 0L12 5.9l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.4a5.5 5.5 0 0 0-.1-7.8Z"/></svg><span>Поддержать</span></a>
+      </div>
+    </nav>
 
   </div>
 

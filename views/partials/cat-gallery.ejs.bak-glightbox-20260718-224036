@@ -1,0 +1,111 @@
+<%
+  const galleryItems =
+    Array.isArray(mediaGallery)
+      ? mediaGallery
+      : Array.isArray(cat.mediaGallery)
+        ? cat.mediaGallery
+        : [];
+
+  const currentGalleryId =
+    typeof galleryId === "string" && galleryId
+      ? galleryId
+      : "main";
+
+  const currentGalleryLabel =
+    typeof galleryLabel === "string" && galleryLabel
+      ? galleryLabel
+      : `Фото и видео ${cat.name}`;
+
+  const hideFirstItem =
+    typeof hideFirst === "boolean"
+      ? hideFirst
+      : currentGalleryId === "main";
+%>
+
+<% if (galleryItems.length) { %>
+
+  <section
+    class="kgorod-cat-media-strip"
+    data-gallery-id="<%= currentGalleryId %>"
+    aria-label="<%= currentGalleryLabel %>">
+
+    <% galleryItems.forEach(function(media, index) { %>
+
+      <%
+        const isCoverSource =
+          currentGalleryId === "main" &&
+          index === 0;
+
+        const shouldHide =
+          hideFirstItem &&
+          index === 0;
+      %>
+
+      <% if (media.type === "video") { %>
+
+        <button
+          class="kgorod-cat-media-strip__item kgorod-cat-media-strip__item--video <%= isCoverSource ? 'is-cover-source' : '' %>"
+          type="button"
+          data-media-kind="video"
+          data-full-src="<%= media.fullUrl %>"
+          data-poster="<%= media.poster || '' %>"
+          data-gallery-index="<%= index %>"
+          <%= shouldHide ? 'hidden' : '' %>
+          aria-label="Открыть видео <%= cat.name %>">
+
+          <video
+            muted
+            loop
+            playsinline
+            preload="none"
+            poster="<%= media.poster || '' %>">
+
+            <% if (media.thumbWebm) { %>
+              <source
+                src="<%= media.thumbWebm %>"
+                type="video/webm">
+            <% } %>
+
+            <% if (media.thumbMp4) { %>
+              <source
+                src="<%= media.thumbMp4 %>"
+                type="video/mp4">
+            <% } %>
+
+          </video>
+
+          <span
+            class="kgorod-cat-media-strip__play"
+            aria-hidden="true">
+            ▶
+          </span>
+
+        </button>
+
+      <% } else { %>
+
+        <button
+          class="kgorod-cat-media-strip__item <%= isCoverSource ? 'is-cover-source' : '' %>"
+          type="button"
+          data-media-kind="photo"
+          data-full-src="<%= media.fullUrl %>"
+          data-thumb-src="<%= media.thumbUrl %>"
+          data-gallery-index="<%= index %>"
+          <%= shouldHide ? 'hidden' : '' %>
+          aria-label="Открыть фото <%= cat.name %>">
+
+          <img
+            src="<%= media.thumbUrl %>"
+            alt="<%= cat.name %> — фото <%= index + 1 %>"
+            loading="lazy"
+            decoding="async">
+
+        </button>
+
+      <% } %>
+
+    <% }) %>
+
+  </section>
+
+<% } %>

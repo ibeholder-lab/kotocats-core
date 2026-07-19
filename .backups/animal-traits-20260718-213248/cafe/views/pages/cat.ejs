@@ -1,0 +1,178 @@
+<%
+const mainGallery = Array.isArray(cat.mediaGallery) ? cat.mediaGallery : [];
+const streetGallery = Array.isArray(cat.streetMediaGallery) ? cat.streetMediaGallery : [];
+const relatedSource = Array.isArray(relatedCats) ? relatedCats : [];
+const sameLocationRelated = relatedSource.filter((item) => String(item.location || "") === String(cat.location || ""));
+const otherLocationRelated = relatedSource.filter((item) => String(item.location || "") !== String(cat.location || ""));
+const visibleRelated = [...sameLocationRelated, ...otherLocationRelated].slice(0, 2);
+const articlePool = [
+  { slug: "30-sposobov-sdelat-zhizn-koshki-luchshe-za-sekundu", title: "\u0033\u0030 \u0441\u043f\u043e\u0441\u043e\u0431\u043e\u0432 \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0436\u0438\u0437\u043d\u044c \u043a\u043e\u0448\u043a\u0438 \u043b\u0443\u0447\u0448\u0435 \u0437\u0430 \u0441\u0435\u043a\u0443\u043d\u0434\u0443", image: "/api/kotprosvet/cover/30-sposobov-sdelat-zhizn-koshki-luchshe-za-sekundu" },
+  { slug: "blagoslovenie-zhivotnyh-kak-koshek-blagoslovlyayut-v-raznyh-stranah-i-religiyah", title: "\u0411\u043b\u0430\u0433\u043e\u0441\u043b\u043e\u0432\u0435\u043d\u0438\u0435 \u0436\u0438\u0432\u043e\u0442\u043d\u044b\u0445: \u043a\u0430\u043a \u043a\u043e\u0448\u0435\u043a \u0431\u043b\u0430\u0433\u043e\u0441\u043b\u043e\u0432\u043b\u044f\u044e\u0442 \u0432 \u0440\u0430\u0437\u043d\u044b\u0445 \u0441\u0442\u0440\u0430\u0445", image: "/api/kotprosvet/cover/blagoslovenie-zhivotnyh-kak-koshek-blagoslovlyayut-v-raznyh-stranah-i-religiyah" },
+  { slug: "vsegda-li-nuzhno-zabirat-koshku-s-ulicy", title: "\u0412\u0441\u0435\u0433\u0434\u0430 \u043b\u0438 \u043d\u0443\u0436\u043d\u043e \u0437\u0430\u0431\u0438\u0440\u0430\u0442\u044c \u043a\u043e\u0448\u043a\u0443 \u0441 \u0443\u043b\u0438\u0446\u044b", image: "/api/kotprosvet/cover/vsegda-li-nuzhno-zabirat-koshku-s-ulicy" },
+  { slug: "koshachij-tygydyk-pochemu-koshka-rezko-nositsya-po-domu-i-chto-delat", title: "\u041a\u043e\u0448\u0430\u0447\u0438\u0439 \u0442\u044b\u0433\u044b\u0434\u044b\u043a: \u043f\u043e\u0447\u0435\u043c\u0443 \u043a\u043e\u0448\u043a\u0430 \u043d\u043e\u0441\u0438\u0442\u0441\u044f \u043f\u043e \u0434\u043e\u043c\u0443", image: "/api/kotprosvet/cover/koshachij-tygydyk-pochemu-koshka-rezko-nositsya-po-domu-i-chto-delat" }
+];
+const relatedArticles = articlePool.sort(() => Math.random() - 0.5).slice(0, 2);
+const catId = cat.slug || cat.id;
+const cafeUrl = cat.location === "prospekt_mira"
+  ? "/cafes/prospekt-mira"
+  : cat.location === "novokuznetskaya"
+    ? "/cafes/novokuznetskaya"
+    : "/booking";
+const locationLabel = cat.locationLabel || "котокафе";
+const catPageUrl = new URL(`/cats/${encodeURIComponent(cat.slug || cat.id)}`, site.url).href;
+const catSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "ItemPage",
+      "@id": `${catPageUrl}#webpage`,
+      "name": `${cat.name} ищет дом`,
+      "description": cat.shortDescription || `Познакомьтесь с кошкой ${cat.name}.`,
+      "url": catPageUrl,
+      "primaryImageOfPage": cat.photoUrl ? { "@type": "ImageObject", "url": cat.photoUrl } : undefined,
+      "mainEntity": {
+        "@type": "Animal",
+        "@id": `${catPageUrl}#animal`,
+        "name": cat.name,
+        "description": cat.shortDescription || `Кошка ${cat.name} ищет дом.`,
+        "image": cat.photoUrl || undefined,
+        "identifier": String(cat.id || ""),
+        "url": catPageUrl
+      },
+      "inLanguage": "ru-RU"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Главная", "item": site.url },
+        { "@type": "ListItem", "position": 2, "name": "Кошки", "item": new URL("/cats", site.url).href },
+        { "@type": "ListItem", "position": 3, "name": cat.name }
+      ]
+    }
+  ]
+};
+const catSchemaJson = JSON.stringify(catSchema).replace(/</g, "\\u003c");
+%>
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <%- include('../partials/favicon') %>
+    <meta name="data-source" content="<%= dataSource || 'core' %>">
+    <title><%= cat.name %> ищет дом — Котики и Люди</title>
+    <meta name="description" content="<%= cat.shortDescription || `Познакомьтесь с кошкой ${cat.name}.` %>">
+    <meta name="keywords" content="<%= `${cat.name}, кошка ищет дом, взять кошку, котокафе Москва` %>">
+    <script type="application/ld+json"><%- catSchemaJson %></script>
+    <script type="text/javascript">(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script','https://mc.yandex.ru/metrika/tag.js','ym');ym(29745500,'init',{webvisor:true,clickmap:true,referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true});</script>
+    <% if (cat.photoUrl) { %><link rel="preload" as="image" href="<%= cat.photoUrl %>"><% } %>
+    <% (typeof pageStyles !== 'undefined' && Array.isArray(pageStyles) ? pageStyles : []).forEach((href) => { %><link rel="stylesheet" href="<%= href %>"><% }); %>
+    <script defer src="/js/mobile-menu.js?v=5"></script>
+    <script defer src="/js/cat-media-gallery.js"></script>
+  </head>
+  <body>
+    <noscript><div><img src="https://mc.yandex.ru/watch/29745500" style="position:absolute; left:-9999px;" alt=""></div></noscript>
+    <%- include('../partials/header') %>
+
+    <main class="page cat-cafe-page" data-source="<%= dataSource || 'core' %>">
+      <nav class="cat-breadcrumbs" aria-label="Хлебные крошки">
+        <a href="/">Главная</a><span class="cat-breadcrumbs__sep" aria-hidden="true">/</span><a href="/cats">Кошки</a><span class="cat-breadcrumbs__sep" aria-hidden="true">/</span><span aria-current="page"><%= cat.name %></span>
+      </nav>
+
+      <section class="cat-cafe-hero kgorod-cat-detail-hero">
+        <span class="cat-cafe-doodle cat-cafe-doodle--one" aria-hidden="true">♡</span>
+        <span class="cat-cafe-doodle cat-cafe-doodle--two" aria-hidden="true">✦</span>
+        <%- include(kotocatsCore.partial("cat-card.ejs"), {
+          cat,
+          catsUrl: "/cats",
+          adoptUrl: `/adopt/${encodeURIComponent(catId)}`,
+          adoptText: "Забрать домой",
+          helpUrl: `/donate?animal=${encodeURIComponent(cat.id)}`,
+          helpText: "Помочь кошке",
+          feedUrl: `/feed?cat=${encodeURIComponent(cat.slug || cat.id)}`,
+          meetUrl: cafeUrl,
+          meetText: "Приехать знакомиться"
+        }) %>
+
+        <%- include('../partials/core-media-gallery', {
+          cat,
+          mediaGallery: mainGallery,
+          galleryId: "main",
+          galleryLabel: `Фото и видео ${cat.name}`,
+          hideFirst: true
+        }) %>
+      </section>
+
+      <section class="cat-cafe-info">
+        <div class="cat-cafe-info__copy">
+          <span class="cafe-kicker">Знакомство</span>
+          <h2>Сейчас <%= cat.name %> живет в котокафе</h2>
+          <p>Локация: <strong><%= locationLabel %></strong>. Можно выбрать удобное время, приехать и спокойно познакомиться.</p>
+          <a class="button" href="<%= cafeUrl %>">Посмотреть котокафе</a>
+        </div>
+        <div class="cat-cafe-info__note" aria-hidden="true">
+          <span>кофе</span>
+          <strong>+</strong>
+          <span>знакомство</span>
+          <i>♡</i>
+        </div>
+      </section>
+
+      <% if (streetGallery.length) { %>
+        <details class="cat-street-story">
+          <summary>
+            <span class="cafe-kicker">История спасения</span>
+            <strong>Каким был путь <%= cat.name %> до котокафе?</strong>
+            <small>Показать фотографии и видео с улицы</small>
+          </summary>
+          <div class="cat-street-story__body">
+            <%- include('../partials/core-media-gallery', {
+              cat,
+              mediaGallery: streetGallery,
+              galleryId: "street",
+              galleryLabel: `Фото и видео ${cat.name} с улицы`,
+              hideFirst: false
+            }) %>
+          </div>
+        </details>
+      <% } %>
+
+      <section class="cat-help-card">
+        <div>
+          <span class="cafe-kicker">Поддержать</span>
+          <h2>Помочь <%= cat.name %></h2>
+          <p>Пожертвования помогают оплачивать корм, лечение, обследования и ежедневную заботу до переезда домой.</p>
+        </div>
+        <div class="hero-actions">
+          <a class="button" href="/donate?animal=<%= encodeURIComponent(cat.id) %>">Помочь кошке</a>
+          <a class="button button--ghost" href="<%= cafeUrl %>">Приехать знакомиться</a>
+        </div>
+      </section>
+
+      <section class="cat-related-section cat-related-articles">
+        <div class="cats-catalog-section__head">
+          <div>
+            <span class="cafe-kicker"><%= locationLabel %></span>
+            <h2>Вы можете познакомиться</h2>
+          </div>
+          <a class="cats-all-link" href="/cats?location=<%= encodeURIComponent(cat.location || '') %>">Все кошки котокафе →</a>
+        </div>
+        <div class="cat-article-related-grid">
+          <% relatedArticles.forEach((article, index) => { %>
+            <a class="cat-article-related-card" href="https://cats-test.kotocafe.ru/kotprosvet/<%= article.slug %>" target="_blank" rel="noopener noreferrer">
+              <img class="cat-article-related-card__art" src="<%= article.image %>" alt="" loading="lazy" decoding="async">
+              <span><%= article.title %></span>
+              <small>Читать статью →</small>
+            </a>
+            <% const pairedCat = visibleRelated.length ? visibleRelated[index % visibleRelated.length] : null; %>
+            <% if (pairedCat) { %>
+              <%- include(kotocatsCore.partial("cat-list-card.ejs"), { cat: pairedCat }) %>
+            <% } %>
+          <% }) %>
+        </div>
+      </section>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </body>
+</html>

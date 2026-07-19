@@ -1,0 +1,19 @@
+{
+  "coordinateSystem": "normalized-image",
+  "anchorPosition": "x/y are decimal fractions of the source image width/height; doodle offsets are pixels in the rendered image coordinate space",
+  "anchors": [
+    {"id":"head","title":"Голова","kind":"subject"},
+    {"id":"leftEar","title":"Левое ухо","kind":"subject"},
+    {"id":"rightEar","title":"Правое ухо","kind":"subject"},
+    {"id":"neck","title":"Шея","kind":"subject"},
+    {"id":"nose","title":"Нос","kind":"subject"},
+    {"id":"leftPaw","title":"Левая лапа","kind":"subject"},
+    {"id":"rightPaw","title":"Правая лапа","kind":"subject"},
+    {"id":"tail","title":"Хвост","kind":"subject"},
+    {"id":"backgroundLeft","title":"Фон слева","kind":"background"},
+    {"id":"backgroundRight","title":"Фон справа","kind":"background"},
+    {"id":"bottomLeft","title":"Низ слева","kind":"background"},
+    {"id":"bottomRight","title":"Низ справа","kind":"background"},
+    {"id":"center","title":"Центр","kind":"background"}
+  ]
+}

@@ -43,9 +43,11 @@
 
       <% if (media.type === "video") { %>
 
-        <button
-          class="kgorod-cat-media-strip__item kgorod-cat-media-strip__item--video <%= isCoverSource ? 'is-cover-source' : '' %>"
-          type="button"
+        <a
+          class="kgorod-cat-media-strip__item cat-gallery-lightbox kgorod-cat-media-strip__item--video <%= isCoverSource ? 'is-cover-source' : '' %>"
+          href="<%= media.fullUrl %>"
+          data-gallery="cat-gallery-<%= currentGalleryId %>"
+          data-type="video"
           data-media-kind="video"
           data-full-src="<%= media.fullUrl %>"
           data-poster="<%= media.poster || '' %>"
@@ -80,13 +82,15 @@
             ▶
           </span>
 
-        </button>
+        </a>
 
       <% } else { %>
 
-        <button
-          class="kgorod-cat-media-strip__item <%= isCoverSource ? 'is-cover-source' : '' %>"
-          type="button"
+        <a
+          class="kgorod-cat-media-strip__item cat-gallery-lightbox <%= isCoverSource ? 'is-cover-source' : '' %>"
+          href="<%= media.fullUrl %>"
+          data-gallery="cat-gallery-<%= currentGalleryId %>"
+          data-type="image"
           data-media-kind="photo"
           data-full-src="<%= media.fullUrl %>"
           data-thumb-src="<%= media.thumbUrl %>"
@@ -100,7 +104,7 @@
             loading="lazy"
             decoding="async">
 
-        </button>
+        </a>
 
       <% } %>
 

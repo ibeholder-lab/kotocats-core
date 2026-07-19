@@ -2,6 +2,14 @@
 const paymentData = typeof paymentQuery !== "undefined" ? paymentQuery : {};
 const paymentSuccess = String(paymentData.payment || "") === "success";
 const catDonateName = cat && cat.name ? cat.name : "кошке";
+const donateKind = typeof donationKind !== "undefined" ? donationKind : "donate";
+const donationNeedId = typeof needId !== "undefined" ? needId : "";
+const donationNeedTitle = typeof needTitle !== "undefined" ? needTitle : "";
+const donationAmounts =
+  typeof amounts !== "undefined" && Array.isArray(amounts) && amounts.length
+    ? amounts
+    : [50, 100, 300];
+const defaultAmount = Number(typeof initialAmount !== "undefined" ? initialAmount : donationAmounts[donationAmounts.length - 1]) || 300;
 %>
 
 <% if (!paymentSuccess) { %>
@@ -10,6 +18,9 @@ const catDonateName = cat && cat.name ? cat.name : "кошке";
     data-cat-donate
     data-cat-id="<%= cat.id %>"
     data-cat-name="<%= cat.name %>"
+    data-donation-kind="<%= donateKind %>"
+    data-need-id="<%= donationNeedId %>"
+    data-need-title="<%= donationNeedTitle %>"
     data-success-url="<%= pageUrl %>?payment=success&kind=donate"
     data-failure-url="<%= pageUrl %>?payment=failed&kind=donate">
 
@@ -27,14 +38,14 @@ const catDonateName = cat && cat.name ? cat.name : "кошке";
       </p>
 
       <div class="cat-donate__amounts" aria-label="Выберите сумму пожертвования">
-        <button type="button" class="cat-donate__amount" data-amount="50">50 ₽</button>
-        <button type="button" class="cat-donate__amount" data-amount="100">100 ₽</button>
-        <button type="button" class="cat-donate__amount is-active" data-amount="300">300 ₽</button>
+        <% donationAmounts.forEach(function(amount) { %>
+          <button type="button" class="cat-donate__amount <%= Number(amount) === defaultAmount ? 'is-active' : '' %>" data-amount="<%= amount %>"><%= amount %> ₽</button>
+        <% }) %>
       </div>
 
       <div class="cat-donate__actions-row">
         <button type="button" class="cat-donate__button" data-donate-button>
-          Помочь на 300 ₽
+          <%= donateKind === 'guardianship' ? 'Оформить опеку' : 'Помочь на ' + defaultAmount + ' ₽' %>
         </button>
       </div>
     </div>

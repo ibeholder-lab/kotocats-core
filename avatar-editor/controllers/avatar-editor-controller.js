@@ -1,1 +1,126 @@
-const path=require("path"),{verifyInitData,createSession}=require("../services/telegram-auth"),maps=require("../services/directus-avatar-maps");const allowed=()=>new Set(String(process.env.AVATAR_EDITOR_TELEGRAM_IDS||"").split(",").map(x=>x.trim()).filter(Boolean)),themes=new Set(["crown","wings","scepter"]);function page(q,s){s.sendFile(path.join(__dirname,"..","views","index.html"));}function auth(q,s){const v=verifyInitData(q.body&&q.body.initData,process.env.TELEGRAM_BOT_TOKEN);if(!v||!allowed().has(String(v.id))||!process.env.AVATAR_EDITOR_SESSION_SECRET)return s.status(401).json({ok:false,error:"forbidden"});s.setHeader("Set-Cookie", "avatar_editor_session="+encodeURIComponent(createSession(v.id,process.env.AVATAR_EDITOR_SESSION_SECRET))+"; Max-Age=28800; Path=/; HttpOnly; Secure; SameSite=Lax");s.json({ok:true});}async function animals(q,s,n){try{s.json({ok:true,data:await maps.listAnimals()});}catch(e){n(e);}}async function media(q,s,n){try{if(!maps.validId(q.params.id))return s.status(400).json({ok:false,error:"invalid_id"});s.json({ok:true,data:await maps.listMedia(q.params.id)});}catch(e){n(e);}}async function getMap(q,s,n){try{const{animalId,fileId}=q.params;if(!maps.validId(animalId)||!maps.validId(fileId))return s.status(400).json({ok:false,error:"invalid_id"});s.json({ok:true,data:await maps.getMap(animalId,fileId)});}catch(e){n(e);}}function validate(v){if(!v||typeof v!=="object"||Array.isArray(v)||!themes.has(v.previewTheme)||!v.anchors||typeof v.anchors!=="object")return null;const a={};for(const k of["head","back","left_paw","right_paw"]){const x=v.anchors[k];if(!x||!Number.isFinite(x.x)||!Number.isFinite(x.y)||!Number.isFinite(x.angle)||x.x<0||x.x>1||x.y<0||x.y>1||Math.abs(x.angle)>360)return null;a[k]={x:x.x,y:x.y,angle:x.angle};}return{anchors:a,previewTheme:v.previewTheme};}async function putMap(q,s,n){try{const v=validate(q.body),{animalId,fileId}=q.params;if(!maps.validId(animalId)||!maps.validId(fileId)||!v)return s.status(400).json({ok:false,error:"invalid_payload"});s.json({ok:true,data:await maps.putMap(animalId,fileId,v,q.avatarEditor.telegramId)});}catch(e){n(e);}}module.exports={page,auth,animals,media,getMap,putMap};
+const path = require("path");
+
+const { verifyInitData, createSession } = require("../services/telegram-auth");
+const maps = require("../services/directus-avatar-maps");
+const createDirectusClient = require("../../lib/directus-client");
+
+const themes = new Set(["crown", "wings", "scepter"]);
+
+function editorRoleId() {
+  return String(process.env.AVATAR_EDITOR_ROLE_ID || "1").trim();
+}
+
+async function canEditAvatars(telegramId) {
+  const client = createDirectusClient({
+    directusUrl: process.env.DIRECTUS_URL,
+    directusToken: process.env.DIRECTUS_TOKEN,
+  });
+  const result = await client.get("/items/animals_team", {
+    filter: {
+      telegram_id: { _eq: String(telegramId) },
+      is_active: { _eq: true },
+      role_id: { _eq: editorRoleId() },
+    },
+    fields: "id",
+    limit: 1,
+  });
+  return Array.isArray(result.data) && result.data.length > 0;
+}
+
+function page(req, res) {
+  res.sendFile(path.join(__dirname, "..", "views", "index.html"));
+}
+
+async function auth(req, res) {
+  const telegramUser = verifyInitData(
+    req.body && req.body.initData,
+    process.env.TELEGRAM_BOT_TOKEN,
+  );
+
+  if (!telegramUser || !process.env.AVATAR_EDITOR_SESSION_SECRET) {
+    return res.status(401).json({ ok: false, error: "forbidden" });
+  }
+
+  try {
+    if (!(await canEditAvatars(telegramUser.id))) {
+      return res.status(403).json({ ok: false, error: "forbidden" });
+    }
+  } catch (error) {
+    console.error("AVATAR EDITOR ACCESS ERROR:", error.response?.data || error.message);
+    return res.status(503).json({ ok: false, error: "access_check_failed" });
+  }
+
+  res.setHeader(
+    "Set-Cookie",
+    "avatar_editor_session=" +
+      encodeURIComponent(
+        createSession(telegramUser.id, process.env.AVATAR_EDITOR_SESSION_SECRET),
+      ) +
+      "; Max-Age=28800; Path=/; HttpOnly; Secure; SameSite=Lax",
+  );
+  return res.json({ ok: true });
+}
+
+async function animals(req, res, next) {
+  try {
+    res.json({ ok: true, data: await maps.listAnimals() });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function media(req, res, next) {
+  try {
+    if (!maps.validId(req.params.id)) {
+      return res.status(400).json({ ok: false, error: "invalid_id" });
+    }
+    return res.json({ ok: true, data: await maps.listMedia(req.params.id) });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function getMap(req, res, next) {
+  try {
+    const { animalId, fileId } = req.params;
+    if (!maps.validId(animalId) || !maps.validId(fileId)) {
+      return res.status(400).json({ ok: false, error: "invalid_id" });
+    }
+    return res.json({ ok: true, data: await maps.getMap(animalId, fileId) });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+function validate(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value) || !themes.has(value.previewTheme) || !value.anchors || typeof value.anchors !== "object") {
+    return null;
+  }
+  const anchors = {};
+  for (const key of ["head", "back", "left_paw", "right_paw"]) {
+    const anchor = value.anchors[key];
+    if (!anchor || !Number.isFinite(anchor.x) || !Number.isFinite(anchor.y) || !Number.isFinite(anchor.angle) || anchor.x < 0 || anchor.x > 1 || anchor.y < 0 || anchor.y > 1 || Math.abs(anchor.angle) > 360) {
+      return null;
+    }
+    anchors[key] = { x: anchor.x, y: anchor.y, angle: anchor.angle };
+  }
+  return { anchors, previewTheme: value.previewTheme };
+}
+
+async function putMap(req, res, next) {
+  try {
+    const value = validate(req.body);
+    const { animalId, fileId } = req.params;
+    if (!maps.validId(animalId) || !maps.validId(fileId) || !value) {
+      return res.status(400).json({ ok: false, error: "invalid_payload" });
+    }
+    return res.json({
+      ok: true,
+      data: await maps.putMap(animalId, fileId, value, req.avatarEditor.telegramId),
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+module.exports = { page, auth, animals, media, getMap, putMap };

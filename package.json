@@ -8,13 +8,16 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "input": "^1.0.1",
+    "nodemailer": "^9.0.3",
     "pg": "^8.22.0",
     "playwright": "^1.61.1",
     "telegram": "^2.26.22"
   },
   "scripts": {
     "start": "node app.js",
-    "check": "node --check app.js"
+    "check": "node --check app.js",
+    "traits:bootstrap": "node scripts/bootstrap-animal-traits.js",
+    "test:traits": "node --test tests/animal-traits.test.js"
   },
   "allowScripts": {
     "bufferutil@4.1.0": true,

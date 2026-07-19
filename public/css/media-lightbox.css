@@ -1,0 +1,16 @@
+.glightbox-container video {
+  display: block;
+  max-width: min(100%, 1200px);
+  max-height: calc(100dvh - 80px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.glightbox-container .gvideo-wrapper {
+  max-width: min(100%, 1200px);
+}
+
+.cat-gallery-lightbox {
+  display: block;
+}
