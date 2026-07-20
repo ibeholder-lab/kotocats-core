@@ -27,209 +27,84 @@ function shuffle(items) {
   return shuffled;
 }
 
+
+function createCatSeo(cat, siteUrl, defaultOgImage) {
+  const baseUrl = String(siteUrl || "").replace(/\/+$/, "");
+  const name = String(cat?.name || "Кошка").trim() || "Кошка";
+  const status = String(cat?.status || "").trim().toLowerCase();
+  const pageUrl = baseUrl + "/cats/" + encodeURIComponent(String(cat?.slug || cat?.id || "").trim());
+  const description = String(cat?.shortDescription || cat?.description || "").replace(/\s+/g, " ").trim()
+    || "Познакомьтесь с кошкой " + name + " на сайте фонда «Кошки в городе».";
+  const imagePath = String(cat?.ogImageUrl || cat?.photoUrl || defaultOgImage || "").trim();
+  const ogImage = /^https:\/\//i.test(imagePath)
+    ? imagePath
+    : baseUrl + (imagePath.startsWith("/") ? imagePath : "/" + imagePath);
+
+  return {
+    pageTitle: status === "looking_home" ? name + " ищет дом — Кошки в городе" : name + " — Кошки в городе",
+    pageDescription: description,
+    pageUrl,
+    ogImage,
+    ogImageAlt: "Фотография кошки " + name,
+    ogType: "website",
+    ogSiteName: "Кошки в городе",
+  };
+}
+
+
+const CATEGORY_FILTERS = [
+  { value: "all", label: "Все", icon: "", description: "Здесь живые анкеты кошек фонда «Хорошее дело». Можно выбрать кошку, познакомиться с ней, приехать в котокафе или помочь кормом, лечением и заботой." },
+  { value: "kitten", label: "Котята", icon: "🐱", description: "Котята только начинают знакомиться с большим миром. Они быстро привыкают к новому дому, любят играть, исследовать всё вокруг и с интересом познают жизнь рядом с человеком." },
+  { value: "young", label: "Молодые кошки", icon: "🌿", description: "Молодые кошки уже выросли, но по-прежнему полны любопытства и энергии. Многие уже освоили домашние правила и легко привыкают к новой семье." },
+  { value: "adult", label: "Взрослые кошки", icon: "🐈", description: "Взрослые кошки — спокойные и сформировавшиеся личности. Их характер уже хорошо известен, поэтому подобрать питомца под свой образ жизни становится проще." },
+  { value: "senior", label: "На доживании", icon: "💜", description: "Эти кошки уже немолоды и особенно нуждаются в спокойном доме, где смогут провести зрелые годы рядом с любящими людьми." },
+  { value: "special", label: "Особенные кошки", icon: "💙", description: "Особенные кошки живут с особенностями здоровья или перенесёнными травмами, но это не мешает им радоваться жизни и быть счастливыми дома." },
+];
+const CATEGORY_SEO = {
+  kitten: { pageTitle: "Котята ищут дом — взять котёнка из приюта | Кошки в городе", pageDescription: "Котята фонда «Кошки в городе», которые ищут дом. Познакомьтесь с котятами, выберите питомца и подайте заявку на знакомство." },
+  young: { pageTitle: "Молодые кошки ищут дом | Кошки в городе", pageDescription: "Молодые кошки фонда «Кошки в городе», которые ищут любящую семью. Познакомьтесь с питомцами и выберите своего друга." },
+  adult: { pageTitle: "Взрослые кошки ищут дом | Кошки в городе", pageDescription: "Взрослые кошки фонда «Кошки в городе», которым нужен дом. Узнайте характер питомцев и подайте заявку на знакомство." },
+  senior: { pageTitle: "Кошки на доживании ищут заботу | Кошки в городе", pageDescription: "Пожилые кошки фонда «Кошки в городе», которым особенно нужны забота, спокойствие и любящий дом." },
+  special: { pageTitle: "Особенные кошки ищут дом | Кошки в городе", pageDescription: "Особенные кошки фонда «Кошки в городе», которые ищут понимающую семью. Познакомьтесь с питомцами и узнайте, какая помощь им нужна." },
+};
+const CATEGORY_PATH_VALUES = new Set(["kitten", "young", "adult", "senior", "special"]);
+function createCatsSeo(siteUrl, defaultOgImage, category = "all") {
+  const baseUrl = String(siteUrl || "").replace(/\/+$/, "");
+  const imagePath = String(defaultOgImage || "").trim();
+  const ogImage = /^https:\/\//i.test(imagePath) ? imagePath : baseUrl + (imagePath.startsWith("/") ? imagePath : "/" + imagePath);
+  const categorySeo = CATEGORY_SEO[category];
+  const pagePath = categorySeo ? "/cats/" + category : "/cats";
+  return { pageTitle: categorySeo?.pageTitle || "Кошки ищут дом — Кошки в городе", pageDescription: categorySeo?.pageDescription || "Познакомьтесь с кошками фонда «Кошки в городе», которые ищут любящих хозяев.", pageUrl: baseUrl + pagePath, ogImage, ogImageAlt: categorySeo ? categorySeo.pageTitle : "Кошки фонда «Кошки в городе»", ogType: "website", ogSiteName: "Кошки в городе" };
+}
 function createCatsRouter(options = {}) {
   const router = express.Router();
-
-  const {
-    loadCatsForCatalog,
-    loadCatsForWidget,
-    loadCatBySlugOrId,
-    siteUrl = "",
-    defaultOgImage = "",
-    notFoundView = "404",
-  } = options;
-
-  if (typeof loadCatsForCatalog !== "function") {
-    throw new Error("kotocats-core: loadCatsForCatalog is required");
+  const { loadCatsForCatalog, loadCatsForWidget, loadCatBySlugOrId, siteUrl = "", defaultOgImage = "", notFoundView = "404", canonicalSiteUrl = siteUrl } = options;
+  if (typeof loadCatsForCatalog !== "function") throw new Error("kotocats-core: loadCatsForCatalog is required");
+  if (typeof loadCatsForWidget !== "function") throw new Error("kotocats-core: loadCatsForWidget is required");
+  if (typeof loadCatBySlugOrId !== "function") throw new Error("kotocats-core: loadCatBySlugOrId is required");
+  async function renderCatalog(req, res, next, activeCategory) {
+    try {
+      const activeCategoryData = CATEGORY_FILTERS.find((item) => item.value === activeCategory) || CATEGORY_FILTERS[0];
+      const catsData = await loadCatsForCatalog(); const allCats = Array.isArray(catsData.cats) ? catsData.cats : [];
+      const categoryCounts = allCats.reduce((counts, cat) => { counts.all += 1; const category = String(cat.category || "").trim().toLowerCase(); if (Object.prototype.hasOwnProperty.call(counts, category)) counts[category] += 1; return counts; }, { all: 0, kitten: 0, young: 0, adult: 0, senior: 0, special: 0 });
+      const filteredCats = activeCategory === "all" ? allCats : allCats.filter((cat) => String(cat.category || "").trim().toLowerCase() === activeCategory);
+      return res.render("cats", { catalogSeo: createCatsSeo(siteUrl, defaultOgImage, activeCategory), kotocatsCore, cats: shuffle(filteredCats), catsError: catsData.error, selectedCat: null, selectedCatMissing: false, activeCategory, activeCategoryData, categoryFilters: CATEGORY_FILTERS, categoryCounts, styles: ["cats"] });
+    } catch (err) { return next(err); }
   }
-
-  if (typeof loadCatsForWidget !== "function") {
-    throw new Error("kotocats-core: loadCatsForWidget is required");
-  }
-
-  if (typeof loadCatBySlugOrId !== "function") {
-    throw new Error("kotocats-core: loadCatBySlugOrId is required");
-  }
-
-  router.get("/cats", async (req, res, next) => {
-  try {
-    if (req.query.animal) {
-      return res.redirect(
-        301,
-        "/cats/" + encodeURIComponent(String(req.query.animal)),
-      );
-    }
-
-const categoryFilters = [
-  {
-    value: "all",
-    label: "Все",
-    icon: "",
-    description:
-      "Здесь живые анкеты кошек фонда «Хорошее дело». Можно выбрать кошку, познакомиться с ней, приехать в котокафе или помочь кормом, лечением и заботой.",
-  },
-  {
-    value: "kitten",
-    label: "Котята",
-    icon: "🐱",
-    description:
-      "Котята только начинают знакомиться с большим миром. Они быстро привыкают к новому дому, любят играть, исследовать всё вокруг и с интересом познают жизнь рядом с человеком. Если вы готовы уделять время воспитанию и активным играм, котёнок может стать замечательным другом на долгие годы.",
-  },
-  {
-    value: "young",
-    label: "Молодые кошки",
-    icon: "🌿",
-    description:
-      "Молодые кошки уже выросли, но по-прежнему полны любопытства и энергии. У каждой из них свой характер, привычки и любимые занятия. Многие уже освоили домашние правила и легко привыкают к новой семье, сохраняя игривость и открытость к общению.",
-  },
-  {
-    value: "adult",
-    label: "Взрослые кошки",
-    icon: "🐈",
-    description:
-      "Взрослые кошки — спокойные и сформировавшиеся личности. Их характер уже хорошо известен, поэтому подобрать питомца под свой образ жизни становится проще. Многие из них ценят внимание человека, любят уют и быстро начинают доверять тем, кто относится к ним с заботой.",
-  },
-  {
-    value: "senior",
-    label: "На доживании",
-    icon: "💜",
-    description:
-      "Эти кошки уже немолоды и особенно нуждаются в спокойном доме, где смогут провести зрелые годы рядом с любящими людьми. Им не нужны долгие приключения — гораздо важнее тепло, забота и ощущение, что рядом есть свой человек. Многие пожилые кошки удивительно ласковы, благодарны и становятся самыми преданными домашними друзьями.",
-  },
-  {
-    value: "special",
-    label: "Особенные кошки",
-    icon: "💙",
-    description:
-      "Особенные кошки живут с особенностями здоровья или перенесёнными травмами, но это не мешает им радоваться жизни, играть, общаться с людьми и быть счастливыми дома. Многие из них не требуют сложного ухода — лишь немного больше внимания, любви и понимания. Зато они часто отвечают человеку удивительным доверием и привязанностью.",
-  },
-];
-    const allowedCategories = new Set(
-      categoryFilters.map((item) => item.value),
-    );
-
-    const requestedCategory = String(
-      req.query.category || "all",
-    )
-      .trim()
-      .toLowerCase();
-
-    const activeCategory = allowedCategories.has(requestedCategory)
-      ? requestedCategory
-      : "all";
-
-      const activeCategoryData =
-  categoryFilters.find(
-    (item) => item.value === activeCategory,
-  ) || categoryFilters[0];
-
-    const catsData = await loadCatsForCatalog();
-
-    const allCats = Array.isArray(catsData.cats)
-      ? catsData.cats
-      : [];
-
-    const categoryCounts = allCats.reduce(
-      (counts, cat) => {
-        counts.all += 1;
-
-        const category = String(cat.category || "")
-          .trim()
-          .toLowerCase();
-
-        if (
-          Object.prototype.hasOwnProperty.call(
-            counts,
-            category,
-          )
-        ) {
-          counts[category] += 1;
-        }
-
-        return counts;
-      },
-      {
-        all: 0,
-        kitten: 0,
-        young: 0,
-        adult: 0,
-        senior: 0,
-        special: 0,
-      },
-    );
-
-    const filteredCats =
-      activeCategory === "all"
-        ? allCats
-        : allCats.filter((cat) => {
-            return (
-              String(cat.category || "")
-                .trim()
-                .toLowerCase() === activeCategory
-            );
-          });
-
-res.render("cats", {
-  kotocatsCore,
-  cats: shuffle(filteredCats),
-  catsError: catsData.error,
-  selectedCat: null,
-  selectedCatMissing: false,
-  activeCategory,
-  activeCategoryData,
-  categoryFilters,
-  categoryCounts,
-  styles: ["cats"],
-});
-  } catch (err) {
-    next(err);
-  }
-});
-
+  router.get("/cats", (req, res, next) => {
+    if (req.query.animal) return res.redirect(301, "/cats/" + encodeURIComponent(String(req.query.animal)));
+    if (Object.prototype.hasOwnProperty.call(req.query, "category")) { const category = String(req.query.category || "").trim().toLowerCase(); return res.redirect(301, CATEGORY_PATH_VALUES.has(category) ? "/cats/" + category : "/cats"); }
+    return renderCatalog(req, res, next, "all");
+  });
+  router.get(["/cats/kitten", "/cats/young", "/cats/adult", "/cats/senior", "/cats/special"], (req, res, next) => renderCatalog(req, res, next, req.path.split("/").pop()));
   router.get("/cats/:slug", async (req, res, next) => {
     try {
       const cat = await loadCatBySlugOrId(req.params.slug);
-
-      if (!cat) {
-        return res.status(404).render(notFoundView, {
-          pageTitle: "Кошка не найдена",
-          pageDescription:
-            "Запрошенная анкета кошки не найдена или больше не опубликована.",
-          pageUrl:
-            siteUrl +
-            "/cats/" +
-            encodeURIComponent(req.params.slug),
-          ogImage: defaultOgImage,
-        });
-      }
-
-      const catsData = await loadCatsForWidget(6);
-
-      const relatedCats = catsData.cats
-        .filter(
-          (item) => String(item.id) !== String(cat.id),
-        )
-        .slice(0, 4);
-
-      res.render("cat", {
-        kotocatsCore,
-        cat,
-        relatedCats,
-        catsError: catsData.error,
-        query: req.query || {},
-        paymentQuery: req.query || {},
-        styles: [
-          "home-fixes",
-          "gallery",
-          "cat-detail",
-          "cat-donate",
-        ],
-      });
-    } catch (err) {
-      next(err);
-    }
+      if (!cat) return res.status(404).render(notFoundView, { pageTitle: "Кошка не найдена", pageDescription: "Запрошенная анкета кошки не найдена или больше не опубликована.", pageUrl: siteUrl + "/cats/" + encodeURIComponent(req.params.slug), ogImage: defaultOgImage });
+      const catsData = await loadCatsForWidget(6); const relatedCats = catsData.cats.filter((item) => String(item.id) !== String(cat.id)).slice(0, 4);
+      return res.render("cat", { catSeo: createCatSeo(cat, siteUrl, defaultOgImage), canonicalUrl: String(canonicalSiteUrl || siteUrl).replace(/\/+$/, "") + "/cats/" + encodeURIComponent(String(cat.slug || req.params.slug || "").trim()), kotocatsCore, cat, relatedCats, catsError: catsData.error, query: req.query || {}, paymentQuery: req.query || {}, styles: ["home-fixes", "gallery", "cat-detail", "cat-donate"] });
+    } catch (err) { return next(err); }
   });
-
   return router;
 }
 

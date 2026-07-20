@@ -392,12 +392,8 @@ function createAnimalReviewsModule(options) {
   function animalVisibleForPublicReviews(animal) {
     if (!animal) return false;
     if (typeof isAnimalPublicForWeb === 'function') return Boolean(isAnimalPublicForWeb(animal));
-    if (animal.is_archived === true || animal.archived === true) return false;
-    if (animal.status === 'archived' || animal.status === 'hidden') return false;
-    if (animal.is_public !== undefined) return animal.is_public === true || animal.is_public === 'true';
-    if (animal.published !== undefined) return animal.published === true || animal.published === 'true';
-    // Fail closed: без явного признака публичности не принимаем и не показываем отзывы.
-    return false;
+    return (animal.published === true || animal.published === 'true')
+      && animal.status === 'looking_home';
   }
 
   if (!DIRECTUS_URL) throw new Error('DIRECTUS_URL is required for animal reviews module');
@@ -420,7 +416,7 @@ function createAnimalReviewsModule(options) {
 
     const rows = await directusGet('animals', {
       filter: { id: { _eq: animalId } },
-      fields: 'id,name,status,location,is_public,published,is_archived,archived',
+      fields: 'id,name,status,published',
       limit: 1,
     });
     return rows?.[0] || null;

@@ -1,0 +1,29 @@
+{
+  "source": "donation.ru",
+  "cache_ttl_seconds": 600,
+  "stale_ttl_seconds": 3600,
+  "request_timeout_ms": 10000,
+  "items": [
+    {
+      "url": "https://www.donation.ru/kotocafe/yajma",
+      "enabled": true,
+      "sort": 10,
+      "cat_slugs": [],
+      "image": "https://file.donation.ru:4443/uploads/targets/16074/cbd2691650a9bdf1f398bfbdbb8bf854_260428.jpg"
+    },
+    {
+      "url": "https://www.donation.ru/kotocafe/pusha_1782220698",
+      "enabled": true,
+      "sort": 20,
+      "cat_slugs": [],
+      "image": "https://file.donation.ru:4443/uploads/targets/16711/6c635a587b87709c2bf131f3b2a7c2d5_260623.jpg"
+    },
+    {
+      "url": "https://www.donation.ru/kotocafe/pomojem_bibe_bobe_serke_pereehat_v_kafe",
+      "enabled": true,
+      "sort": 30,
+      "cat_slugs": [],
+      "image": "https://file.donation.ru:4443/uploads/targets/16785/1d23034db09dc7ebef90510eecd67ae4_260627.jpg"
+    }
+  ]
+}

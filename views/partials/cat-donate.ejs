@@ -1,7 +1,7 @@
 <%
 const paymentData = typeof paymentQuery !== "undefined" ? paymentQuery : {};
 const paymentSuccess = String(paymentData.payment || "") === "success";
-const catDonateName = cat && cat.name ? cat.name : "кошке";
+const catDonateName = cat && cat.name ? `кошку по имени ${cat.name}` : "кошку";
 const donateKind = typeof donationKind !== "undefined" ? donationKind : "donate";
 const donationNeedId = typeof needId !== "undefined" ? needId : "";
 const donationNeedTitle = typeof needTitle !== "undefined" ? needTitle : "";

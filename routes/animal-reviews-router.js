@@ -2,6 +2,8 @@ const axios = require("axios");
 const express = require("express");
 const { createAnimalReviewsModule } = require("./animal-reviews.module");
 
+const ANIMAL_REVIEW_ANIMAL_FIELDS = "id,name,status,published";
+
 function createAnimalReviewsRouter() {
   const directusUrl = String(process.env.DIRECTUS_URL || "").replace(/\/+$/, "");
   const token = process.env.DIRECTUS_TOKEN || "";
@@ -19,7 +21,11 @@ function createAnimalReviewsRouter() {
     directusGet: get,
     directusPost: async (collection, body) => (await axios.post(`${directusUrl}/items/${collection}`, body, { headers: headers({ "Content-Type": "application/json" }), timeout: 30000 })).data?.data,
     directusPatch: async (collection, id, body) => (await axios.patch(`${directusUrl}/items/${collection}/${encodeURIComponent(id)}`, body, { headers: headers({ "Content-Type": "application/json" }), timeout: 30000 })).data?.data,
-    getAnimalById: async (id) => (await get("animals", { filter: { id: { _eq: id } }, fields: "id,name,status,published,is_public,is_archived,archived", limit: 1 }))[0] || null,
+    getAnimalById: async (id) => (await get("animals", {
+      filter: { id: { _eq: id }, published: { _eq: true }, status: { _eq: "looking_home" } },
+      fields: ANIMAL_REVIEW_ANIMAL_FIELDS,
+      limit: 1,
+    }))[0] || null,
   });
   const router = express.Router();
   router.use((req, res, next) => {
@@ -29,4 +35,4 @@ function createAnimalReviewsRouter() {
   return router;
 }
 
-module.exports = { createAnimalReviewsRouter };
+module.exports = { createAnimalReviewsRouter, ANIMAL_REVIEW_ANIMAL_FIELDS };

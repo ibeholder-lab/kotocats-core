@@ -46,7 +46,7 @@ document.querySelectorAll("[data-cat-donate]").forEach(function(root) {
           need_id: root.dataset.needId || undefined,
           need_title: root.dataset.needTitle || undefined,
           source: kind === "guardianship" ? "koshkivgorode-site-guardianship" : "koshkivgorode-site",
-          comment: "Донат кошке " + root.dataset.catName,
+          comment: "Донат для кошки по имени " + root.dataset.catName,
           success_url: root.dataset.successUrl,
           failure_url: root.dataset.failureUrl
         })

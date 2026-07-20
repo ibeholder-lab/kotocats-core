@@ -83,6 +83,21 @@ const currentFeedUrl = typeof feedUrl === "string" ? feedUrl : "";
   </div>
 
 
+  <% if (renderTraitsUnderMedia && Array.isArray(cat.traits) && cat.traits.length) { %>
+    <section class="kgorod-cat-detail__traits cat-traits" aria-labelledby="cat-traits-title">
+      <h2 id="cat-traits-title"><%= cat.sex === "female" ? "Какая я" : "Какой я" %></h2>
+      <ul class="cat-traits__list">
+        <% cat.traits.forEach((trait) => { %>
+          <li class="cat-traits__chip">
+            <% if (trait.icon) { %><span class="cat-traits__icon" aria-hidden="true"><%= trait.icon %></span><% } %>
+            <span><%= trait.displayName || trait.name %></span>
+          </li>
+        <% }) %>
+      </ul>
+    </section>
+  <% } %>
+
+
   <div class="kgorod-cat-detail__body">
 
     <a
@@ -138,7 +153,7 @@ const currentFeedUrl = typeof feedUrl === "string" ? feedUrl : "";
     <% } %>
 
 
-    <nav class="cat-actions" aria-label="Действия для <%= cat.name %>">
+    <nav class="cat-actions" aria-label="Действия для кошки по имени <%= cat.name %>">
       <div class="cat-actions__primary">
         <a class="cat-action-button cat-action-button--adopt" href="<%= currentAdoptUrl %>"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-6h6v6"/></svg><span>Забрать домой</span></a>
         <a class="cat-action-button cat-action-button--visit" href="<%= currentMeetUrl %>"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg><span>Познакомиться</span></a>

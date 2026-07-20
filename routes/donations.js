@@ -146,8 +146,8 @@ router.post("/create", async (req, res) => {
       comment: normalizeNullable(
         body.comment ||
           (paymentType === "feed"
-            ? `Вкусняшка для ${animalName}`
-            : `Донат кошке ${animalName}`),
+            ? `Вкусняшка для кошки по имени ${animalName}`
+            : `Донат для кошки по имени ${animalName}`),
         500,
       ),
       publicThanks:

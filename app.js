@@ -15,12 +15,22 @@ const { createInternalAdoptionNotificationsRouter } = require("./lib/adoption-no
 const { createDoodlesRouter } = require("./routes/doodles");
 const { createHeroImagesRouter } = require("./routes/hero-images");
 const { createInternalAnimalTraitsRouter } = require("./routes/internal-animal-traits");
+const mediaLikesRouter = require("./routes/media-likes");
+const { loadConfig } = require("./lib/fundraisers/config");
+const { FundraisersService } = require("./lib/fundraisers/service");
+const { createFundraisersRouter } = require("./routes/fundraisers");
+const { createMediaUploadRouter } = require("./media-upload/router");
+const { cleanup: cleanupMediaUploads } = require("./media-upload/store");
+const path = require("path");
+const internalToolsRouter = require("./internal-tools/router");
 
 const app = express();
 const HOST = process.env.HOST || "127.0.0.1";
 const PORT = Number(process.env.PORT || 3010);
 
-app.set("trust proxy", true);
+app.set("trust proxy", "loopback");
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
 
 app.post("/mixplat/webhook", async (req, res) => {
   try {
@@ -47,14 +57,43 @@ app.use("/api/internal", createInternalAnimalTraitsRouter({
   internalToken: process.env.KOTOCATS_CORE_INTERNAL_TOKEN,
 }));
 app.use("/kotocats-core", express.static(core.publicPath));
+app.use(internalToolsRouter);
 app.use(createInternalAlertsRouter());
 app.use(createInternalAdoptionNotificationsRouter());
+app.use("/api/media-likes", mediaLikesRouter);
+const fundraisersService = new FundraisersService({ config: loadConfig() });
+const FUNDRAISERS_REFRESH_MS = 900000;
+async function refreshFundraisersCache() {
+  const startedAt = Date.now();
+  console.log("[fundraisers] refresh started");
+  try {
+    const data = await fundraisersService.refresh();
+    console.log(`[fundraisers] refresh completed items=${data.items.length} duration_ms=${Date.now() - startedAt}`);
+  } catch (error) {
+    const duration = Date.now() - startedAt;
+    const message = JSON.stringify(String(error?.message || "fundraisers_refresh_failed").slice(0, 160));
+    console.error(`[fundraisers] refresh failed duration_ms=${duration} error=${message}`);
+    try {
+      console.error(`[fundraisers] previous cache preserved items=${fundraisersService.getCached().items.length}`);
+    } catch {}
+  } finally {
+    console.log(`[fundraisers] next refresh scheduled in ${FUNDRAISERS_REFRESH_MS} ms`);
+    setTimeout(refreshFundraisersCache, FUNDRAISERS_REFRESH_MS);
+  }
+}
+void refreshFundraisersCache();
+app.use("/api/fundraisers", createFundraisersRouter({ service: fundraisersService }));
 app.use("/api", createAssetsRouter());
 app.use("/api", createVideoPostersRouter());
 app.use("/api/kotprosvet", core.createKotprosvetRouter());
 app.use("/api", createDoodlesRouter());
 app.use("/api", createHeroImagesRouter());
 app.use(avatarEditorRouter());
+app.use("/media-upload", (req, res, next) => { res.set({ "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "Permissions-Policy": "camera=(), microphone=(), geolocation=()", "Cache-Control": "no-store" }); next(); }, express.static(path.join(__dirname, "media-upload", "public")));
+app.get("/media-upload", (req, res) => res.set({ "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "Permissions-Policy": "camera=(), microphone=(), geolocation=()", "Cache-Control": "no-store" }).sendFile(path.join(__dirname, "media-upload", "public", "index.html")));
+app.use("/api/media-upload", createMediaUploadRouter());
+void cleanupMediaUploads().catch((error) => console.error("media_upload_cleanup_failed", error.message));
+setInterval(() => void cleanupMediaUploads().catch((error) => console.error("media_upload_cleanup_failed", error.message)), 60 * 60 * 1000).unref();
 
 app.get("/health", (req, res) => {
   res.json({ ok: true, service: "kotocats-core" });
