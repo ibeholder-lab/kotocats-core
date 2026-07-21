@@ -23,6 +23,7 @@ const { createMediaUploadRouter } = require("./media-upload/router");
 const { cleanup: cleanupMediaUploads } = require("./media-upload/store");
 const path = require("path");
 const internalToolsRouter = require("./internal-tools/router");
+const { createWebhookDebugLogger } = require("./lib/webhook-debug-logger");
 
 const app = express();
 const HOST = process.env.HOST || "127.0.0.1";
@@ -33,11 +34,12 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 app.post("/mixplat/webhook", async (req, res) => {
+  const webhookLogger = createWebhookDebugLogger(req, res, { provider: "mixplat" });
   try {
     const urlObject = new URL(req.originalUrl, "http://localhost");
-    return await core.handleMixplatWebhook(req, res, urlObject);
+    return await core.handleMixplatWebhook(req, res, urlObject, webhookLogger);
   } catch (error) {
-    console.error("MIXPLAT WEBHOOK ROUTE ERROR:", error?.response?.data || error?.message || error);
+    webhookLogger.error(error, { stage: "route" });
     if (!res.headersSent) return res.status(500).json({ ok: false, error: "webhook_route_failed" });
     return null;
   }

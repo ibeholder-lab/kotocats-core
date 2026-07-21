@@ -9,6 +9,8 @@ const donationAmounts =
   typeof amounts !== "undefined" && Array.isArray(amounts) && amounts.length
     ? amounts
     : [50, 100, 300];
+const donateFailureUrl =
+  typeof failureUrl !== "undefined" && failureUrl ? failureUrl : `${pageUrl}?payment=failed&kind=donate`;
 const defaultAmount = Number(typeof initialAmount !== "undefined" ? initialAmount : donationAmounts[donationAmounts.length - 1]) || 300;
 %>
 
@@ -22,7 +24,7 @@ const defaultAmount = Number(typeof initialAmount !== "undefined" ? initialAmoun
     data-need-id="<%= donationNeedId %>"
     data-need-title="<%= donationNeedTitle %>"
     data-success-url="<%= pageUrl %>?payment=success&kind=donate"
-    data-failure-url="<%= pageUrl %>?payment=failed&kind=donate">
+    data-failure-url="<%= donateFailureUrl %>">
 
     <div class="cat-donate__content">
       <p class="cat-donate__eyebrow">
