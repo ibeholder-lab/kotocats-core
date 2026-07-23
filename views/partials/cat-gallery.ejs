@@ -52,8 +52,12 @@
           data-full-src="<%= media.fullUrl %>"
           data-poster="<%= media.poster || '' %>"
           data-gallery-index="<%= index %>"
+          data-media-type="animal_media"
+          data-media-id="<%= media.id %>"
           <%= shouldHide ? 'hidden' : '' %>
           aria-label="Открыть видео <%= cat.name %>">
+
+          <span class="cat-gallery-like-badge" data-gallery-like-badge aria-hidden="true"><svg data-like-heart viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z"/></svg><span data-like-count>0</span></span>
 
           <video
             muted
@@ -95,8 +99,12 @@
           data-full-src="<%= media.fullUrl %>"
           data-thumb-src="<%= media.thumbUrl %>"
           data-gallery-index="<%= index %>"
+          data-media-type="animal_media"
+          data-media-id="<%= media.id %>"
           <%= shouldHide ? 'hidden' : '' %>
           aria-label="Открыть фото <%= cat.name %>">
+
+          <span class="cat-gallery-like-badge" data-gallery-like-badge aria-hidden="true"><svg data-like-heart viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z"/></svg><span data-like-count>0</span></span>
 
           <img
             src="<%= media.thumbUrl %>"

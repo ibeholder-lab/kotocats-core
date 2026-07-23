@@ -78,7 +78,7 @@ function createCatsSeo(siteUrl, defaultOgImage, category = "all") {
 }
 function createCatsRouter(options = {}) {
   const router = express.Router();
-  const { loadCatsForCatalog, loadCatsForWidget, loadCatBySlugOrId, siteUrl = "", defaultOgImage = "", notFoundView = "404", canonicalSiteUrl = siteUrl } = options;
+  const { loadCatsForCatalog, loadCatsForWidget, loadCatBySlugOrId, loadActiveAnimalNeeds, siteUrl = "", defaultOgImage = "", notFoundView = "404", canonicalSiteUrl = siteUrl } = options;
   if (typeof loadCatsForCatalog !== "function") throw new Error("kotocats-core: loadCatsForCatalog is required");
   if (typeof loadCatsForWidget !== "function") throw new Error("kotocats-core: loadCatsForWidget is required");
   if (typeof loadCatBySlugOrId !== "function") throw new Error("kotocats-core: loadCatBySlugOrId is required");
@@ -102,7 +102,12 @@ function createCatsRouter(options = {}) {
       const cat = await loadCatBySlugOrId(req.params.slug);
       if (!cat) return res.status(404).render(notFoundView, { pageTitle: "Кошка не найдена", pageDescription: "Запрошенная анкета кошки не найдена или больше не опубликована.", pageUrl: siteUrl + "/cats/" + encodeURIComponent(req.params.slug), ogImage: defaultOgImage });
       const catsData = await loadCatsForWidget(6); const relatedCats = catsData.cats.filter((item) => String(item.id) !== String(cat.id)).slice(0, 4);
-      return res.render("cat", { catSeo: createCatSeo(cat, siteUrl, defaultOgImage), canonicalUrl: String(canonicalSiteUrl || siteUrl).replace(/\/+$/, "") + "/cats/" + encodeURIComponent(String(cat.slug || req.params.slug || "").trim()), kotocatsCore, cat, relatedCats, catsError: catsData.error, query: req.query || {}, paymentQuery: req.query || {}, styles: ["home-fixes", "gallery", "cat-detail", "cat-donate"] });
+      let activeNeeds = [];
+      if (typeof loadActiveAnimalNeeds === "function") {
+        try { activeNeeds = await loadActiveAnimalNeeds(cat.id); }
+        catch (error) { console.error("[cats] Failed to load active needs", { animalId: cat.id, message: error.message }); }
+      }
+      return res.render("cat", { catSeo: createCatSeo(cat, siteUrl, defaultOgImage), canonicalUrl: String(canonicalSiteUrl || siteUrl).replace(/\/+$/, "") + "/cats/" + encodeURIComponent(String(cat.slug || req.params.slug || "").trim()), kotocatsCore, cat, relatedCats, activeNeeds: Array.isArray(activeNeeds) ? activeNeeds : [], catsError: catsData.error, query: req.query || {}, paymentQuery: req.query || {}, styles: ["home-fixes", "gallery", "cat-detail", "cat-donate"] });
     } catch (err) { return next(err); }
   });
   return router;

@@ -4,12 +4,13 @@
   "stale_ttl_seconds": 3600,
   "request_timeout_ms": 10000,
   "items": [
-    {
-      "url": "https://www.donation.ru/kotocafe/yajma",
+
+     {
+      "url": "https://www.donation.ru/kotocafe/musya_1784727215",
       "enabled": true,
-      "sort": 10,
+      "sort": 5,
       "cat_slugs": [],
-      "image": "https://file.donation.ru:4443/uploads/targets/16074/cbd2691650a9bdf1f398bfbdbb8bf854_260428.jpg"
+      "image": "https://file.donation.ru:4443/uploads/targets/17122/9dd92d6c70a0d002d8d28fae1debc1aa_260722.jpg"
     },
     {
       "url": "https://www.donation.ru/kotocafe/pusha_1782220698",

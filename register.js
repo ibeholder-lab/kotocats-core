@@ -16,6 +16,7 @@ function registerKotocats(app, options = {}) {
     loadCatsForCatalog = core.loadCatsForCatalog,
     loadCatsForWidget = core.loadCatsForWidget,
     loadCatBySlugOrId = core.loadCatBySlugOrId,
+    loadActiveAnimalNeeds,
   } = options;
 
   app.use(assetsPath, express.static(core.publicPath));
@@ -31,6 +32,7 @@ function registerKotocats(app, options = {}) {
     loadCatsForCatalog,
     loadCatsForWidget,
     loadCatBySlugOrId,
+    loadActiveAnimalNeeds,
     siteUrl,
     defaultOgImage,
     notFoundView,

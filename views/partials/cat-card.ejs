@@ -37,6 +37,11 @@ const currentMeetText =
     : "Приехать знакомиться";
 
 const currentFeedUrl = typeof feedUrl === "string" ? feedUrl : "";
+
+const shouldRenderTraitsUnderMedia =
+  typeof renderTraitsUnderMedia !== "undefined"
+    ? Boolean(renderTraitsUnderMedia)
+    : false;
 %>
 
 <div class="kgorod-cat-detail" id="cat-detail">
@@ -83,7 +88,7 @@ const currentFeedUrl = typeof feedUrl === "string" ? feedUrl : "";
   </div>
 
 
-  <% if (renderTraitsUnderMedia && Array.isArray(cat.traits) && cat.traits.length) { %>
+  <% if (shouldRenderTraitsUnderMedia && Array.isArray(cat.traits) && cat.traits.length) { %>
     <section class="kgorod-cat-detail__traits cat-traits" aria-labelledby="cat-traits-title">
       <h2 id="cat-traits-title"><%= cat.sex === "female" ? "Какая я" : "Какой я" %></h2>
       <ul class="cat-traits__list">
